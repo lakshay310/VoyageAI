@@ -1,0 +1,165 @@
+// prisma/schema.prisma
+// Defines all database tables (models) for the AI Trip Planner.
+// Run: npx prisma migrate dev --name init   to apply to your DB.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── USER ────────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   // bcrypt hashed
+  avatar    String?  // Cloudinary URL
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  trips     Trip[]
+  bookings  Booking[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// ─── TRIP ────────────────────────────────────────────────────────────────────
+
+model Trip {
+  id          String     @id @default(uuid())
+  title       String
+  destination String
+  startDate   DateTime
+  endDate     DateTime
+  budget      Float      @default(0)
+  coverImage  String?    // Cloudinary URL
+  status      TripStatus @default(PLANNED)
+  notes       String?
+  itinerary   String?    // AI-generated day-by-day itinerary (Markdown)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // Foreign key: which user owns this trip
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations
+  bookings Booking[]
+  expenses Expense[]
+}
+
+enum TripStatus {
+  PLANNED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+// ─── BOOKING ─────────────────────────────────────────────────────────────────
+
+model Booking {
+  id          String        @id @default(uuid())
+  type        BookingType
+  provider    String        // e.g. "IndiGo", "Taj Hotel"
+  reference   String?       // booking confirmation code
+  amount      Float
+  status      BookingStatus @default(PENDING)
+  bookedAt    DateTime      @default(now())
+
+  // Foreign keys
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+enum BookingType {
+  FLIGHT
+  HOTEL
+  CAR
+  ACTIVITY
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+// ─── EXPENSE ─────────────────────────────────────────────────────────────────
+
+model Expense {
+  id          String          @id @default(uuid())
+  title       String
+  amount      Float
+  category    ExpenseCategory
+  date        DateTime        @default(now())
+  notes       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt    // tracks last edit time
+
+  // Foreign key: which trip this expense belongs to
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+enum ExpenseCategory {
+  FOOD
+  TRANSPORT
+  ACCOMMODATION
+  ACTIVITIES
+  SHOPPING
+  OTHER
+}
+
+// ─── FLIGHT ──────────────────────────────────────────────────────────────────
+
+model Flight {
+  id             String   @id @default(uuid())
+  flightNumber   String   // e.g. "6E-204"
+  airline        String   // e.g. "IndiGo"
+  airlineCode    String   // e.g. "6E"
+  fromCity       String   // e.g. "Delhi"
+  fromCode       String   // e.g. "DEL"
+  toCity         String   // e.g. "Goa"
+  toCode         String   // e.g. "GOI"
+  departureTime  String   // e.g. "06:00"
+  arrivalTime    String   // e.g. "08:30"
+  duration       String   // e.g. "2h 30m"
+  stops          Int      @default(0) // 0 = Non-stop, 1 = 1 Stop
+  price          Float    // Base price per adult in INR
+  cabinClass     String   @default("Economy") // Economy, Premium Economy, Business
+  availableSeats Int      @default(60)
+  createdAt      DateTime @default(now())
+}
+
+// ─── HOTEL ───────────────────────────────────────────────────────────────────
+// Stores our curated hotel inventory across India and international cities.
+
+model Hotel {
+  id             String   @id @default(uuid())
+  name           String   // e.g. "Taj Mahal Palace"
+  city           String   // e.g. "Mumbai"
+  country        String   @default("India")
+  address        String   // Full address
+  starRating     Int      // 1–5
+  pricePerNight  Float    // Base price per night in INR
+  roomType       String   // "Standard", "Deluxe", "Suite", "Premium"
+  amenities      String   // Comma-separated list: "WiFi,Pool,Gym,Spa"
+  imageUrl       String?  // Photo URL
+  rating         Float    @default(4.0) // Guest rating out of 5
+  reviewCount    Int      @default(0)
+  availableRooms Int      @default(20)
+  createdAt      DateTime @default(now())
+}
