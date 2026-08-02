@@ -1,0 +1,98 @@
+/* src/index.css */
+/* Import Google Font first — @import must come before all other rules */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Tailwind v4 — single import replaces the three @tailwind directives from v3 */
+@import "tailwindcss";
+
+/* Global base styles */
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 font-sans antialiased;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+/* Reusable component classes */
+@layer components {
+  /* Primary button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           bg-blue-600 text-white font-semibold text-sm
+           hover:bg-blue-700 active:scale-95 transition-all duration-200
+           disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary outline button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg
+           border border-gray-600 text-gray-200 font-semibold text-sm
+           hover:bg-gray-800 active:scale-95 transition-all duration-200;
+  }
+
+  /* Reusable card container */
+  .card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-sm;
+  }
+
+  /* Form input */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700
+           text-gray-100 placeholder:text-gray-500 text-sm
+           focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+           transition-colors duration-200;
+  }
+
+  /* Form label */
+  .label {
+    @apply block text-sm font-medium text-gray-400 mb-1.5;
+  }
+
+  /* Landing page gradient badge */
+  .badge-gradient {
+    @apply inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold
+           bg-blue-500/10 text-blue-400 border border-blue-500/20;
+  }
+}
+
+/* ── Landing page animations ─────────────────────────────────────────────── */
+
+/* Fade up: elements enter from slightly below, fading in */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Slow float: decorative blobs gently drift up and down */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-16px); }
+}
+
+/* Shimmer: moving gradient for skeleton-style highlights */
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* Pulse glow: soft radial glow pulsing on CTA button */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); }
+  50%       { box-shadow: 0 0 24px 6px rgba(59,130,246,0.35); }
+}
+
+.animate-fade-in-up  { animation: fadeInUp 0.7s ease both; }
+.animate-float       { animation: float 5s ease-in-out infinite; }
+.animate-pulse-glow  { animation: pulseGlow 2.5s ease-in-out infinite; }
+
+/* Stagger delays — add these alongside animate-fade-in-up */
+.delay-100 { animation-delay: 0.10s; }
+.delay-200 { animation-delay: 0.20s; }
+.delay-300 { animation-delay: 0.30s; }
+.delay-400 { animation-delay: 0.40s; }
+.delay-500 { animation-delay: 0.50s; }
+.delay-600 { animation-delay: 0.60s; }
+
