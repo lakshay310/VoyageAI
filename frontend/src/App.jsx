@@ -21,7 +21,8 @@ import TripDetailPage from './pages/TripDetailPage';
 import AIPlannerPage from './pages/AIPlannerPage';
 import FlightSearchPage from './pages/FlightSearchPage';
 import HotelSearchPage  from './pages/HotelSearchPage';
-import BookingsPage     from './pages/BookingsPage';
+import BookingsPage       from './pages/BookingsPage';
+import ExpenseTrackerPage from './pages/ExpenseTrackerPage';
 
 // Placeholder pages for future prompts — prevents broken routes
 const PlaceholderPage = ({ title }) => (
@@ -69,7 +70,7 @@ const App = () => {
             <Route path="/flights" element={<FlightSearchPage />} />
             <Route path="/hotels" element={<HotelSearchPage />} />
             <Route path="/bookings"    element={<BookingsPage />} />
-            <Route path="/expenses" element={<PlaceholderPage title="Expenses" />} />
+            <Route path="/expenses" element={<ExpenseTrackerPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Routes>
