@@ -1,9 +1,9 @@
 // src/validators/ai.validator.js
-// Validates the AI itinerary generation request.
-// We check required fields and sensible ranges before calling the expensive AI API.
+// Validates AI-related endpoints — itinerary generation and chatbot messages.
 
 const { body } = require('express-validator');
 
+// ── Itinerary generator validator ─────────────────────────────────────────────
 const generateValidator = [
   body('destination')
     .trim()
@@ -28,4 +28,18 @@ const generateValidator = [
     .isLength({ max: 200 }).withMessage('Interests must be under 200 characters.'),
 ];
 
-module.exports = { generateValidator };
+// ── Chatbot message validator ──────────────────────────────────────────────────
+// Validates the user's chat message and optional conversation history.
+// history is an array of { role: 'user'|'model', text: string } objects.
+const chatValidator = [
+  body('message')
+    .trim()
+    .notEmpty().withMessage('Message cannot be empty.')
+    .isLength({ max: 500 }).withMessage('Message must be under 500 characters.'),
+
+  body('history')
+    .optional()
+    .isArray().withMessage('History must be an array of chat turns.'),
+];
+
+module.exports = { generateValidator, chatValidator };

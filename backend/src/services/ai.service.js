@@ -289,4 +289,87 @@ const generateItinerary = async (tripParams) => {
   };
 };
 
-module.exports = { generateItinerary, detectCurrency };
+/**
+ * Chat with the AI travel assistant.
+ *
+ * Sends a user message + the full conversation history to Gemini.
+ * Gemini uses the history to understand context from previous turns.
+ *
+ * @param {string} message   - The user's latest message
+ * @param {Array}  history   - Previous turns: [{ role: 'user'|'model', text: string }, ...]
+ * @returns {string}         - The AI's reply text
+ */
+const chatWithBot = async (message, history = []) => {
+  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'your_gemini_api_key_here') {
+    const error = new Error('Gemini API key is not configured.');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  // Build the current date/time string in IST (India Standard Time, UTC+5:30).
+  // We inject this into the system prompt so Gemini always knows the real date.
+  // Without this, Gemini guesses based on its training data (wrong month/season).
+  const now = new Date();
+  const istOffset = 5.5 * 60 * 60 * 1000; // IST = UTC + 5h 30m
+  const ist = new Date(now.getTime() + istOffset);
+
+  const dayName   = ist.toLocaleDateString('en-IN', { weekday: 'long',  timeZone: 'Asia/Kolkata' });
+  const monthName = ist.toLocaleDateString('en-IN', { month: 'long',   timeZone: 'Asia/Kolkata' });
+  const dateStr   = ist.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' });
+  const timeStr   = ist.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' });
+
+  // System instruction: sets personality, scope, AND the real current date.
+  // Gemini will use this to answer time-sensitive questions correctly —
+  // "this time of year", "next month", "is it a good season to visit X?" etc.
+  const systemInstruction = `You are VoyageAI, a friendly and knowledgeable travel assistant for Indian travellers.
+
+CURRENT DATE & TIME (use this for all time-sensitive answers):
+- Today is: ${dayName}, ${dateStr}
+- Current time (IST): ${timeStr}
+- Current month: ${monthName}
+Use this date whenever the user asks about "this month", "this time of year", "current season", "next month", upcoming festivals, or travel weather.
+
+You help users with:
+- Trip planning, itinerary ideas, and destination recommendations
+- Budget estimates in Indian Rupees (₹) and local currency
+- Hotel and restaurant suggestions
+- Visa, transport, and travel tips
+- Flight advice and best booking strategies
+- Safety tips, cultural etiquette, and packing advice
+
+Keep replies concise (2-4 short paragraphs max), friendly, and use emojis occasionally.
+If asked something unrelated to travel, politely redirect to travel topics.
+Always mention costs in ₹ when giving Indian traveller-specific advice.`;
+
+
+  // Build the conversation turns in Gemini's expected format:
+  // Each turn is { role: 'user' | 'model', parts: [{ text: '...' }] }
+  // We prepend the system instruction as the first user-model exchange
+  // so the model understands its role from the very start.
+  const systemTurn = [
+    { role: 'user',  parts: [{ text: 'Who are you and what can you help me with?' }] },
+    { role: 'model', parts: [{ text: `I'm VoyageAI, your personal travel assistant for Indian travellers! 🌍✈️\n\nI can help you with trip planning, budget estimates, hotel & restaurant picks, visa info, flight tips, and much more. Just ask me anything about travel!` }] },
+  ];
+
+  // Convert our simple { role, text } history into Gemini's { role, parts } format
+  const historyTurns = history.map((turn) => ({
+    role:  turn.role,
+    parts: [{ text: turn.text }],
+  }));
+
+  // The new user message goes last
+  const newUserTurn = { role: 'user', parts: [{ text: message }] };
+
+  // All contents = system primer + prior conversation + latest message
+  const contents = [...systemTurn, ...historyTurns, newUserTurn];
+
+  const response = await ai.models.generateContent({
+    model:  'gemini-3.6-flash',
+    config: { systemInstruction },  // Gemini system instruction for personality
+    contents,
+  });
+
+  return response.text;
+};
+
+module.exports = { generateItinerary, detectCurrency, chatWithBot };

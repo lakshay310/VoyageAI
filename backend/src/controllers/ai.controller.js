@@ -37,4 +37,27 @@ const generateItinerary = async (req, res, next) => {
   }
 };
 
-module.exports = { generateItinerary };
+/**
+ * POST /api/ai/chat
+ * Free-form travel Q&A chatbot with conversation memory.
+ *
+ * Request body:
+ *   { message: string, history: [{ role: 'user'|'model', text: string }] }
+ *
+ * The frontend sends the full chat history on every request so Gemini
+ * has context from all previous turns (stateless server — no DB storage needed).
+ */
+const chatWithBot = async (req, res, next) => {
+  try {
+    const { message, history = [] } = req.body;
+
+    // Pass message + conversation history to the AI service
+    const reply = await aiService.chatWithBot(message, history);
+
+    return sendSuccess(res, 'Chat reply generated.', { reply });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { generateItinerary, chatWithBot };
