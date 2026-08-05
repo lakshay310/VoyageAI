@@ -4,14 +4,15 @@
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
-  { label: 'Dashboard',  icon: '🏠', path: '/dashboard' },
-  { label: 'My Trips',   icon: '🗺️', path: '/trips' },
-  { label: 'AI Planner', icon: '🤖', path: '/ai-planner' },
-  { label: 'Flights',    icon: '✈️', path: '/flights' },
-  { label: 'Hotels',     icon: '🏨', path: '/hotels' },
-  { label: 'Bookings',   icon: '🎫', path: '/bookings' },
-  { label: 'Expenses',   icon: '💰', path: '/expenses' },
-  { label: 'Profile',    icon: '👤', path: '/profile' },
+  { label: 'Dashboard',        icon: '🏠', path: '/dashboard' },
+  { label: 'My Trips',         icon: '🧳', path: '/trips' },
+  { label: 'AI Planner',       icon: '🤖', path: '/ai-planner' },
+  { label: 'Interactive Maps', icon: '🗺️', path: '/maps' },
+  { label: 'Flights',          icon: '✈️', path: '/flights' },
+  { label: 'Hotels',           icon: '🏨', path: '/hotels' },
+  { label: 'Bookings',         icon: '🎫', path: '/bookings' },
+  { label: 'Expenses',         icon: '💰', path: '/expenses' },
+  { label: 'Profile',          icon: '👤', path: '/profile' },
 ];
 
 const Sidebar = () => {

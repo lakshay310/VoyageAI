@@ -103,7 +103,7 @@ const RegisterPage = () => {
                   type="text"
                   name="name"
                   className="input"
-                  placeholder="John Doe"
+                  placeholder="Full Name"
                   value={form.name}
                   onChange={handleChange}
                   required

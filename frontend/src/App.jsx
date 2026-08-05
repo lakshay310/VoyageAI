@@ -24,6 +24,7 @@ import HotelSearchPage  from './pages/HotelSearchPage';
 import BookingsPage       from './pages/BookingsPage';
 import ExpenseTrackerPage from './pages/ExpenseTrackerPage';
 import ChatbotPage        from './pages/ChatbotPage';
+import MapExplorerPage    from './pages/MapExplorerPage';
 
 // Placeholder pages for future prompts — prevents broken routes
 const PlaceholderPage = ({ title }) => (
@@ -72,6 +73,7 @@ const App = () => {
             <Route path="/hotels" element={<HotelSearchPage />} />
             <Route path="/bookings"    element={<BookingsPage />} />
             <Route path="/expenses"   element={<ExpenseTrackerPage />} />
+            <Route path="/maps"       element={<MapExplorerPage />} />
             <Route path="/chatbot"    element={<ChatbotPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>

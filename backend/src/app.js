@@ -17,6 +17,7 @@ const flightRoutes    = require('./routes/flight.routes');
 const hotelRoutes     = require('./routes/hotel.routes');
 const { nestedRouter: bookingNestedRoutes, standaloneRouter: bookingRoutes } = require('./routes/booking.routes');
 const { nestedRouter: expenseNestedRoutes, standaloneRouter: expenseRoutes } = require('./routes/expense.routes');
+const mapRoutes       = require('./routes/map.routes');
 
 // Import global error handler (must be last)
 const errorHandler = require('./middlewares/error.middleware');
@@ -68,6 +69,9 @@ app.use('/api/bookings', bookingRoutes);
 //   Standalone → /api/expenses/:id        (update & delete)
 app.use('/api/trips/:tripId/expenses', expenseNestedRoutes);
 app.use('/api/expenses', expenseRoutes);
+
+// Maps route
+app.use('/api/maps', mapRoutes);
 
 // ── Global error handler (must come AFTER all routes) ────────────────────────
 app.use(errorHandler);
