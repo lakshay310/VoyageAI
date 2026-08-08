@@ -8,6 +8,7 @@ const navItems = [
   { label: 'My Trips',         icon: '🧳', path: '/trips' },
   { label: 'AI Planner',       icon: '🤖', path: '/ai-planner' },
   { label: 'Interactive Maps', icon: '🗺️', path: '/maps' },
+  { label: 'Weather',          icon: '🌦️', path: '/weather' },
   { label: 'Flights',          icon: '✈️', path: '/flights' },
   { label: 'Hotels',           icon: '🏨', path: '/hotels' },
   { label: 'Bookings',         icon: '🎫', path: '/bookings' },

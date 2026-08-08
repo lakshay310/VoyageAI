@@ -17,17 +17,21 @@ initSocket(server);
 // Connect to DB and start listening
 const startServer = async () => {
   try {
-    // Verify database connection before accepting traffic
+    // Try to verify database connection before accepting traffic
     await prisma.$connect();
     console.log('✅ Connected to PostgreSQL database.');
-
-    server.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
-    });
   } catch (error) {
-    console.error('❌ Failed to connect to database:', error.message);
-    process.exit(1); // Exit so the process manager can restart it
+    // Neon serverless DBs go to sleep on the free tier.
+    // We log the warning but DON'T exit — the server still starts.
+    // Prisma will auto-reconnect on the next DB query when Neon wakes up.
+    console.warn('⚠️  Database not reachable yet (Neon cold-start). Server will still start.');
+    console.warn('   Endpoints that need the DB will retry automatically.');
   }
+
+  // Always start the HTTP server regardless of DB status
+  server.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
 };
 
 startServer();
