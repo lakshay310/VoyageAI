@@ -122,11 +122,14 @@ const getWeatherForCity = async (cityName) => {
 
   return {
     location: {
-      name:     location.name,
-      country:  location.country,
-      lat:      location.lat,
-      lng:      location.lng,
-      timezone: location.timezone,
+      name:        location.name,
+      state:       location.state,       // e.g., "Goa", "California", "Île-de-France"
+      country:     location.country,
+      countryCode: location.countryCode, // e.g., "IN", "US", "FR"
+      lat:         location.lat,
+      lng:         location.lng,
+      timezone:    location.timezone,
+      population:  location.population,
     },
     current:  currentWeather,
     forecast,

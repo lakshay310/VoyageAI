@@ -28,6 +28,21 @@ const SEVERITY_STYLE = {
   bad:     'bg-red-500/10 border-red-500/30 text-red-300',
 };
 
+/**
+ * Converts a 2-letter ISO country code to its flag emoji.
+ * Works by mapping each letter to a Unicode Regional Indicator Symbol.
+ * e.g., "IN" → 🇮🇳,  "US" → 🇺🇸,  "FR" → 🇫🇷
+ */
+const getCountryFlag = (countryCode) => {
+  if (!countryCode || countryCode.length !== 2) return '';
+  return countryCode
+    .toUpperCase()
+    .split('')
+    .map((char) => String.fromCodePoint(0x1F1E6 + char.charCodeAt(0) - 65))
+    .join('');
+};
+
+
 const WeatherPage = () => {
   const [searchInput,    setSearchInput]    = useState('');
   const [activeCity,     setActiveCity]     = useState('');
@@ -186,7 +201,16 @@ const WeatherPage = () => {
                   <h2 className="text-4xl font-black text-white">{current?.temperature}°C</h2>
                   <p className="text-blue-300 font-semibold mt-0.5">{current?.weather?.label}</p>
                   <p className="text-gray-400 text-sm mt-1">
-                    📍 {location?.name}, {location?.country}
+                    📍 {location?.name}
+                    {location?.state && location.state !== location.name && (
+                      <span className="text-gray-500">, {location.state}</span>
+                    )}
+                    <span className="text-gray-500">, {location?.country}</span>
+                    {location?.countryCode && (
+                      <span className="ml-1 text-base">
+                        {getCountryFlag(location.countryCode)}
+                      </span>
+                    )}
                   </p>
                   <p className="text-gray-500 text-xs mt-0.5">Feels like {current?.feelsLike}°C</p>
                 </div>
@@ -266,10 +290,12 @@ const WeatherPage = () => {
               <div className="mt-4 pt-4 border-t border-gray-800 space-y-2">
                 <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">More Details</h4>
                 {[
-                  { label: 'Timezone',   value: location?.timezone?.replace('_', ' ') },
-                  { label: 'Latitude',   value: `${location?.lat?.toFixed(4)}°` },
-                  { label: 'Longitude',  value: `${location?.lng?.toFixed(4)}°` },
-                  { label: 'Updated',    value: weatherData.fetchedAt ? new Date(weatherData.fetchedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '–' },
+                  { label: 'State / Province', value: location?.state || '—'                             },
+                  { label: 'Country',          value: `${location?.country} ${getCountryFlag(location?.countryCode)}` },
+                  { label: 'Timezone',         value: location?.timezone?.replace('_', ' ')               },
+                  { label: 'Latitude',         value: `${location?.lat?.toFixed(4)}°`                     },
+                  { label: 'Longitude',        value: `${location?.lng?.toFixed(4)}°`                     },
+                  { label: 'Updated',          value: weatherData?.fetchedAt ? new Date(weatherData.fetchedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '–' },
                 ].map(({ label, value }) => (
                   <div key={label} className="flex justify-between text-xs">
                     <span className="text-gray-500">{label}</span>
