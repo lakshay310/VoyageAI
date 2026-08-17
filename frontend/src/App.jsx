@@ -26,6 +26,8 @@ import ExpenseTrackerPage from './pages/ExpenseTrackerPage';
 import ChatbotPage        from './pages/ChatbotPage';
 import MapExplorerPage    from './pages/MapExplorerPage';
 import WeatherPage        from './pages/WeatherPage';
+import NotificationsPage  from './pages/NotificationsPage';
+import WishlistPage       from './pages/WishlistPage';
 
 // Placeholder pages for future prompts — prevents broken routes
 const PlaceholderPage = ({ title }) => (
@@ -75,7 +77,9 @@ const App = () => {
             <Route path="/bookings"    element={<BookingsPage />} />
             <Route path="/expenses"   element={<ExpenseTrackerPage />} />
             <Route path="/maps"       element={<MapExplorerPage />} />
-            <Route path="/weather"    element={<WeatherPage />} />
+            <Route path="/weather"       element={<WeatherPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/wishlist"       element={<WishlistPage />} />
             <Route path="/chatbot"    element={<ChatbotPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>

@@ -19,6 +19,8 @@ const { nestedRouter: bookingNestedRoutes, standaloneRouter: bookingRoutes } = r
 const { nestedRouter: expenseNestedRoutes, standaloneRouter: expenseRoutes } = require('./routes/expense.routes');
 const mapRoutes       = require('./routes/map.routes');
 const weatherRoutes   = require('./routes/weather.routes');
+const notificationRoutes = require('./routes/notification.routes');
+const wishlistRoutes     = require('./routes/wishlist.routes');
 
 // Import global error handler (must be last)
 const errorHandler = require('./middlewares/error.middleware');
@@ -75,7 +77,13 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/maps',    mapRoutes);
 
 // Weather route
-app.use('/api/weather', weatherRoutes);
+app.use('/api/weather',        weatherRoutes);
+
+// Notifications route
+app.use('/api/notifications',  notificationRoutes);
+
+// Wishlist route
+app.use('/api/wishlist',        wishlistRoutes);
 
 // ── Global error handler (must come AFTER all routes) ────────────────────────
 app.use(errorHandler);

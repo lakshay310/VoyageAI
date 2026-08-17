@@ -24,8 +24,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  trips     Trip[]
-  bookings  Booking[]
+  trips         Trip[]
+  bookings      Booking[]
+  notifications Notification[]  // all notifications for this user
+  wishlists     Wishlist[]      // saved dream destinations
 }
 
 enum Role {
@@ -162,4 +164,66 @@ model Hotel {
   reviewCount    Int      @default(0)
   availableRooms Int      @default(20)
   createdAt      DateTime @default(now())
+}
+
+// ─── NOTIFICATION ─────────────────────────────────────────────────────────────
+// Stores in-app notifications for each user.
+// When a notification is created, it is also pushed via Socket.io in real-time.
+
+model Notification {
+  id        String           @id @default(uuid())
+  title     String           // Short heading, e.g. "Trip Created!"
+  message   String           // Full message body
+  type      NotificationType @default(INFO)
+  isRead    Boolean          @default(false)   // false = unread (shows badge)
+  link      String?          // Optional deep-link, e.g. "/trips/abc"
+  createdAt DateTime         @default(now())
+
+  // Foreign key: which user this notification belongs to
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])   // fast queries by userId
+}
+
+enum NotificationType {
+  INFO              // Generic informational
+  SUCCESS           // Action completed successfully
+  WARNING           // Something needs attention
+  TRIP_CREATED      // User created a new trip
+  BOOKING_CONFIRMED // Booking has been confirmed
+  EXPENSE_ADDED     // New expense logged
+  TRIP_REMINDER     // Upcoming trip reminder
+  WELCOME           // Welcome message on sign-up
+}
+// ─── WISHLIST ─────────────────────────────────────────────────────────────
+// A bucket-list of dream destinations the user wants to visit some day.
+// Each item is independent — not linked to a specific trip yet.
+
+model Wishlist {
+  id          String            @id @default(uuid())
+  destination String            // e.g. "Santorini, Greece"
+  country     String?           // e.g. "Greece"
+  category    WishlistCategory  @default(INTERNATIONAL)
+  notes       String?           // personal note, e.g. "Go during spring"
+  imageUrl    String?           // cover photo URL (optional, Cloudinary)
+  priority    Int               @default(2)  // 1=High, 2=Medium, 3=Low
+  visited     Boolean           @default(false) // mark when the dream comes true!
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Foreign key: which user saved this destination
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])   // fast lookups by user
+}
+
+enum WishlistCategory {
+  DOMESTIC       // destinations within India
+  INTERNATIONAL  // destinations outside India
+  ADVENTURE      // trekking, camping, extreme sports
+  BEACH          // coastal / island destinations
+  CULTURAL       // heritage sites, temples, history
+  WILDLIFE       // national parks, safaris
 }

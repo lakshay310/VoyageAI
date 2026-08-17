@@ -2,7 +2,8 @@
 // Business logic for trips.
 // Sits between the Controller (HTTP) and Repository (DB).
 
-const tripRepository = require('../repositories/trip.repository');
+const tripRepository     = require('../repositories/trip.repository');
+const notificationService = require('./notification.service'); // for real-time alerts
 
 /**
  * Create a new trip.
@@ -28,6 +29,14 @@ const createTrip = async (userId, body) => {
     notes,
     itinerary: itinerary || null, // save AI itinerary if provided
     userId,   // link this trip to the logged-in user
+  });
+
+  // 🔔 Send real-time notification to the user
+  await notificationService.createAndEmit(userId, {
+    title:   'Trip Created! 🧳',
+    message: `Your trip to ${destination} has been saved. Start adding bookings and expenses!`,
+    type:    'TRIP_CREATED',
+    link:    `/trips`,
   });
 
   return trip;

@@ -2,9 +2,10 @@
 // Business logic for authentication.
 // Controllers call these functions; this layer never touches HTTP (req/res).
 
-const bcrypt = require('bcryptjs');
-const userRepository = require('../repositories/user.repository');
-const { generateToken } = require('../utils/jwt');
+const bcrypt              = require('bcryptjs');
+const userRepository      = require('../repositories/user.repository');
+const { generateToken }   = require('../utils/jwt');
+const notificationService = require('./notification.service'); // for welcome notification
 
 /**
  * Register a new user.
@@ -30,6 +31,16 @@ const register = async ({ name, email, password }) => {
 
   // Generate a JWT so the user is immediately logged in after registering
   const token = generateToken({ id: user.id, email: user.email, role: user.role });
+
+  // 🔔 Send a welcome notification (non-blocking — doesn't delay registration response)
+  setImmediate(() => {
+    notificationService.createAndEmit(user.id, {
+      title:   `Welcome to VoyageAI, ${user.name.split(' ')[0]}! 👋`,
+      message: 'Start planning your first trip by clicking "My Trips" in the sidebar.',
+      type:    'WELCOME',
+      link:    '/trips',
+    }).catch(console.error);
+  });
 
   // Return only safe fields (never return the password)
   return {

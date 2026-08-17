@@ -5,8 +5,9 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
+import { useAuth }                 from '../../context/AuthContext';
+import toast                       from 'react-hot-toast';
+import NotificationBell            from '../NotificationBell';
 
 const Navbar = () => {
   const { user, logout }  = useAuth();
@@ -60,6 +61,8 @@ const Navbar = () => {
               <span className="text-gray-400 text-sm">
                 Hey, <span className="text-white font-medium">{user.name.split(' ')[0]}</span>
               </span>
+              {/* 🔔 Real-time notification bell */}
+              <NotificationBell />
               <Link to="/dashboard" className="btn-secondary py-2 px-4 text-xs">
                 Dashboard
               </Link>
