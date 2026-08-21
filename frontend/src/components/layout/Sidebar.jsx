@@ -1,6 +1,10 @@
 // src/components/layout/Sidebar.jsx
-// Left sidebar navigation for the authenticated dashboard area.
+// Left sidebar — always collapsed (icons only) by default.
+// Hover over it → smoothly expands to show labels.
+// Mouse leave → collapses back to icons only.
+// No toggle button needed.
 
+import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
@@ -18,29 +22,52 @@ const navItems = [
 ];
 
 const Sidebar = () => {
-  return (
-    <aside className="w-60 min-h-screen border-r border-gray-800 bg-gray-900 px-3 py-6">
-      {/* App name */}
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-4">
-        Navigation
-      </p>
+  // expanded = true while mouse is over the sidebar
+  const [expanded, setExpanded] = useState(false);
 
-      {/* Nav links */}
-      <nav className="flex flex-col gap-1">
+  return (
+    <aside
+      onMouseEnter={() => setExpanded(true)}   // hover in  → expand
+      onMouseLeave={() => setExpanded(false)}  // hover out → collapse
+      className={`min-h-screen border-r border-gray-800 bg-gray-900 py-6 flex flex-col
+                  transition-all duration-300 ease-in-out shrink-0 overflow-hidden
+                  ${expanded ? 'w-56 px-3' : 'w-[68px] px-2'}`}
+    >
+
+      {/* ── Section label ──────────────────────────────────────────────── */}
+      <div className={`overflow-hidden transition-all duration-200
+                       ${expanded ? 'max-h-8 opacity-100 mb-4' : 'max-h-0 opacity-0 mb-2'}`}>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-2 whitespace-nowrap">
+          Navigation
+        </p>
+      </div>
+
+      {/* ── Nav links ──────────────────────────────────────────────────── */}
+      <nav className="flex flex-col gap-1 flex-1">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
-                isActive
-                  ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
-              }`
+              `flex items-center gap-3 rounded-xl text-sm font-medium
+               transition-all duration-150
+               ${expanded ? 'px-3 py-2.5' : 'justify-center px-0 py-2.5'}
+               ${isActive
+                 ? 'bg-blue-600/20 text-blue-400 border border-blue-600/30'
+                 : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent'
+               }`
             }
           >
-            <span>{item.icon}</span>
-            <span>{item.label}</span>
+            {/* Icon — always visible */}
+            <span className="text-lg leading-none shrink-0">{item.icon}</span>
+
+            {/* Label — fades in when expanded */}
+            <span
+              className={`whitespace-nowrap transition-all duration-200
+                          ${expanded ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}
+            >
+              {item.label}
+            </span>
           </NavLink>
         ))}
       </nav>

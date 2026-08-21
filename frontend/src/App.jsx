@@ -28,6 +28,8 @@ import MapExplorerPage    from './pages/MapExplorerPage';
 import WeatherPage        from './pages/WeatherPage';
 import NotificationsPage  from './pages/NotificationsPage';
 import WishlistPage       from './pages/WishlistPage';
+import JournalPage        from './pages/JournalPage';
+import JournalEntryPage   from './pages/JournalEntryPage';
 
 // Placeholder pages for future prompts — prevents broken routes
 const PlaceholderPage = ({ title }) => (
@@ -80,6 +82,8 @@ const App = () => {
             <Route path="/weather"       element={<WeatherPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/wishlist"       element={<WishlistPage />} />
+            <Route path="/journal"        element={<JournalPage />} />
+            <Route path="/journal/:id"    element={<JournalEntryPage />} />
             <Route path="/chatbot"    element={<ChatbotPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>

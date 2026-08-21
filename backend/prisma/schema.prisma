@@ -56,8 +56,9 @@ model Trip {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Relations
-  bookings Booking[]
-  expenses Expense[]
+  bookings       Booking[]
+  expenses       Expense[]
+  journalEntries JournalEntry[]  // trip diary entries
 }
 
 enum TripStatus {
@@ -226,4 +227,37 @@ enum WishlistCategory {
   BEACH          // coastal / island destinations
   CULTURAL       // heritage sites, temples, history
   WILDLIFE       // national parks, safaris
+}
+
+// ─── JOURNAL ENTRY ──────────────────────────────────────────────────────────
+// A personal travel diary where users log memories, stories, and feelings
+// about each day of their trip. Each entry belongs to a specific trip.
+
+model JournalEntry {
+  id        String       @id @default(uuid())
+  title     String       // e.g. "Sunrise at the Taj Mahal"
+  content   String       // the diary body — supports long text
+  mood      JournalMood  @default(HAPPY)   // how the user felt that day
+  location  String?      // specific place, e.g. "Agra, Uttar Pradesh"
+  date      DateTime     @default(now())   // which day the entry is about
+  isPublic  Boolean      @default(false)   // future: share with others
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Foreign key: which trip this entry belongs to
+  tripId String
+  trip   Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])   // fast lookups by trip
+}
+
+enum JournalMood {
+  AMAZING    // 🤩
+  HAPPY      // 😊
+  NEUTRAL    // 😐
+  TIRED      // 😴
+  EXCITED    // 🥳
+  STRESSED   // 😓
+  RELAXED    // 😌
+  ADVENTUROUS // 🧗
 }
