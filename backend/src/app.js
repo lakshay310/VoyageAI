@@ -22,6 +22,7 @@ const weatherRoutes   = require('./routes/weather.routes');
 const notificationRoutes = require('./routes/notification.routes');
 const wishlistRoutes     = require('./routes/wishlist.routes');
 const journalRoutes      = require('./routes/journal.routes');
+const reviewRoutes       = require('./routes/review.routes');
 
 // Import global error handler (must be last)
 const errorHandler = require('./middlewares/error.middleware');
@@ -88,6 +89,9 @@ app.use('/api/wishlist',        wishlistRoutes);
 
 // Travel Journal route
 app.use('/api/journal',         journalRoutes);
+
+// Reviews & Ratings route
+app.use('/api/reviews',         reviewRoutes);
 
 // ── Global error handler (must come AFTER all routes) ────────────────────────
 app.use(errorHandler);

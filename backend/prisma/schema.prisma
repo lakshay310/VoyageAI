@@ -28,6 +28,7 @@ model User {
   bookings      Booking[]
   notifications Notification[]  // all notifications for this user
   wishlists     Wishlist[]      // saved dream destinations
+  reviews       Review[]        // reviews left by this user
 }
 
 enum Role {
@@ -260,4 +261,35 @@ enum JournalMood {
   STRESSED   // 😓
   RELAXED    // 😌
   ADVENTUROUS // 🧗
+}
+
+// ─── REVIEW ────────────────────────────────────────────────────────────
+// Polymorphic reviews: one table handles Hotel, Flight, and Trip reviews.
+// targetType tells us WHAT is being reviewed.
+// targetId   is the UUID of the specific Hotel / Flight / Trip.
+// Unique constraint: one user can only review each item once.
+
+model Review {
+  id         String           @id @default(uuid())
+  rating     Int              // 1 to 5 stars
+  comment    String?          // optional text review
+  targetType ReviewTargetType // HOTEL | FLIGHT | TRIP
+  targetId   String           // UUID of the hotel/flight/trip being reviewed
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  // Foreign key: which user wrote this review
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One user can only review each item once
+  @@unique([userId, targetType, targetId])
+  @@index([targetType, targetId])   // fast lookup for all reviews of one item
+  @@index([userId])                 // fast lookup for all reviews by one user
+}
+
+enum ReviewTargetType {
+  HOTEL   // reviewing a hotel
+  FLIGHT  // reviewing a flight
+  TRIP    // reviewing a trip destination
 }
