@@ -14,6 +14,7 @@ const navItems = [
   { label: 'Interactive Maps', icon: '🗺️', path: '/maps' },
   { label: 'Weather',          icon: '🌦️', path: '/weather' },
   { label: 'Wishlist',         icon: '🌟', path: '/wishlist' },
+  { label: 'Reviews',          icon: '⭐', path: '/reviews' },
   { label: 'Flights',          icon: '✈️', path: '/flights' },
   { label: 'Hotels',           icon: '🏨', path: '/hotels' },
   { label: 'Bookings',         icon: '🎫', path: '/bookings' },
