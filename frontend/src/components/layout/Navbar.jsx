@@ -88,6 +88,30 @@ const Navbar = () => {
                                    border-transparent border-b-gray-700" />
                 </div>
               </div>
+
+              {/* 🔍 Search quick-access icon with tooltip */}
+              <div className="relative group">
+                <Link
+                  to="/search"
+                  id="navbar-search-btn"
+                  className="relative flex items-center justify-center w-9 h-9 rounded-xl
+                             text-gray-400 hover:text-white hover:bg-gray-800 transition-all
+                             text-lg"
+                  aria-label="Search"
+                >
+                  🔍
+                </Link>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1
+                                bg-gray-800 text-white text-xs font-medium rounded-lg
+                                border border-gray-700 whitespace-nowrap pointer-events-none
+                                opacity-0 group-hover:opacity-100 transition-opacity duration-150
+                                shadow-lg z-50">
+                  Search
+                  <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 border-4
+                                   border-transparent border-b-gray-700" />
+                </div>
+              </div>
+
               <Link to="/dashboard" className="btn-secondary py-2 px-4 text-xs">
                 Dashboard
               </Link>

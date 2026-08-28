@@ -46,6 +46,13 @@
            transition-colors duration-200;
   }
 
+  /* Compact filter input — used in SearchPage filter panels */
+  .filter-input {
+    @apply w-full px-3 py-2 rounded-xl bg-gray-800 border border-gray-700
+           text-gray-100 placeholder:text-gray-500 text-xs
+           focus:outline-none focus:border-blue-500 transition-colors duration-200;
+  }
+
   /* Form label */
   .label {
     @apply block text-sm font-medium text-gray-400 mb-1.5;

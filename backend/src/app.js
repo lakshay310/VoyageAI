@@ -23,6 +23,7 @@ const notificationRoutes = require('./routes/notification.routes');
 const wishlistRoutes     = require('./routes/wishlist.routes');
 const journalRoutes      = require('./routes/journal.routes');
 const reviewRoutes       = require('./routes/review.routes');
+const searchRoutes       = require('./routes/search.routes');
 
 // Import global error handler (must be last)
 const errorHandler = require('./middlewares/error.middleware');
@@ -92,6 +93,9 @@ app.use('/api/journal',         journalRoutes);
 
 // Reviews & Ratings route
 app.use('/api/reviews',         reviewRoutes);
+
+// Search, Filter & Pagination route
+app.use('/api/search',          searchRoutes);
 
 // ── Global error handler (must come AFTER all routes) ────────────────────────
 app.use(errorHandler);

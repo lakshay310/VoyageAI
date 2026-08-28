@@ -31,6 +31,7 @@ import WishlistPage       from './pages/WishlistPage';
 import JournalPage        from './pages/JournalPage';
 import JournalEntryPage   from './pages/JournalEntryPage';
 import ReviewsPage        from './pages/ReviewsPage';
+import SearchPage         from './pages/SearchPage';
 
 // Placeholder pages for future prompts — prevents broken routes
 const PlaceholderPage = ({ title }) => (
@@ -86,6 +87,7 @@ const App = () => {
             <Route path="/journal"        element={<JournalPage />} />
             <Route path="/journal/:id"    element={<JournalEntryPage />} />
             <Route path="/reviews"        element={<ReviewsPage />} />
+            <Route path="/search"         element={<SearchPage />} />
             <Route path="/chatbot"    element={<ChatbotPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
