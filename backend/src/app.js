@@ -9,21 +9,23 @@ const helmet = require('helmet');
 const { CLIENT_URL } = require('./config/env');
 
 // Import route files
-const authRoutes      = require('./routes/auth.routes');
+const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
-const tripRoutes      = require('./routes/trip.routes');
-const aiRoutes        = require('./routes/ai.routes');
-const flightRoutes    = require('./routes/flight.routes');
-const hotelRoutes     = require('./routes/hotel.routes');
+const tripRoutes = require('./routes/trip.routes');
+const adminRoutes        = require('./routes/admin.routes');
+const analyticsRoutes    = require('./routes/analytics.routes');
+const aiRoutes           = require('./routes/ai.routes');
+const flightRoutes = require('./routes/flight.routes');
+const hotelRoutes = require('./routes/hotel.routes');
 const { nestedRouter: bookingNestedRoutes, standaloneRouter: bookingRoutes } = require('./routes/booking.routes');
 const { nestedRouter: expenseNestedRoutes, standaloneRouter: expenseRoutes } = require('./routes/expense.routes');
-const mapRoutes       = require('./routes/map.routes');
-const weatherRoutes   = require('./routes/weather.routes');
+const mapRoutes = require('./routes/map.routes');
+const weatherRoutes = require('./routes/weather.routes');
 const notificationRoutes = require('./routes/notification.routes');
-const wishlistRoutes     = require('./routes/wishlist.routes');
-const journalRoutes      = require('./routes/journal.routes');
-const reviewRoutes       = require('./routes/review.routes');
-const searchRoutes       = require('./routes/search.routes');
+const wishlistRoutes = require('./routes/wishlist.routes');
+const journalRoutes = require('./routes/journal.routes');
+const reviewRoutes = require('./routes/review.routes');
+const searchRoutes = require('./routes/search.routes');
 
 // Import global error handler (must be last)
 const errorHandler = require('./middlewares/error.middleware');
@@ -55,11 +57,20 @@ app.get('/api/health', (req, res) => {
 });
 
 // ── Feature routes ───────────────────────────────────────────────────────────
-app.use('/api/auth',      authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+
+// Admin Dashboard route (ADMIN role only)
+app.use('/api/admin', adminRoutes);
+
+// Analytics route (user-scoped)
+app.use('/api/analytics', analyticsRoutes);
+
+// AI Planner route
 app.use('/api/ai',        aiRoutes);
-app.use('/api/flights',   flightRoutes);
-app.use('/api/hotels',    hotelRoutes);
+
+app.use('/api/flights', flightRoutes);
+app.use('/api/hotels', hotelRoutes);
 
 // Trip routes: all CRUD under /api/trips
 app.use('/api/trips', tripRoutes);
@@ -77,25 +88,25 @@ app.use('/api/trips/:tripId/expenses', expenseNestedRoutes);
 app.use('/api/expenses', expenseRoutes);
 
 // Maps route
-app.use('/api/maps',    mapRoutes);
+app.use('/api/maps', mapRoutes);
 
 // Weather route
-app.use('/api/weather',        weatherRoutes);
+app.use('/api/weather', weatherRoutes);
 
 // Notifications route
-app.use('/api/notifications',  notificationRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Wishlist route
-app.use('/api/wishlist',        wishlistRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 
 // Travel Journal route
-app.use('/api/journal',         journalRoutes);
+app.use('/api/journal', journalRoutes);
 
 // Reviews & Ratings route
-app.use('/api/reviews',         reviewRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Search, Filter & Pagination route
-app.use('/api/search',          searchRoutes);
+app.use('/api/search', searchRoutes);
 
 // ── Global error handler (must come AFTER all routes) ────────────────────────
 app.use(errorHandler);

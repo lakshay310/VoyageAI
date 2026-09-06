@@ -20,18 +20,20 @@ import TripsPage from './pages/TripsPage';
 import TripDetailPage from './pages/TripDetailPage';
 import AIPlannerPage from './pages/AIPlannerPage';
 import FlightSearchPage from './pages/FlightSearchPage';
-import HotelSearchPage  from './pages/HotelSearchPage';
-import BookingsPage       from './pages/BookingsPage';
+import HotelSearchPage from './pages/HotelSearchPage';
+import BookingsPage from './pages/BookingsPage';
 import ExpenseTrackerPage from './pages/ExpenseTrackerPage';
-import ChatbotPage        from './pages/ChatbotPage';
-import MapExplorerPage    from './pages/MapExplorerPage';
-import WeatherPage        from './pages/WeatherPage';
-import NotificationsPage  from './pages/NotificationsPage';
-import WishlistPage       from './pages/WishlistPage';
-import JournalPage        from './pages/JournalPage';
-import JournalEntryPage   from './pages/JournalEntryPage';
-import ReviewsPage        from './pages/ReviewsPage';
-import SearchPage         from './pages/SearchPage';
+import ChatbotPage from './pages/ChatbotPage';
+import MapExplorerPage from './pages/MapExplorerPage';
+import WeatherPage from './pages/WeatherPage';
+import NotificationsPage from './pages/NotificationsPage';
+import WishlistPage from './pages/WishlistPage';
+import JournalPage from './pages/JournalPage';
+import JournalEntryPage from './pages/JournalEntryPage';
+import ReviewsPage from './pages/ReviewsPage';
+import SearchPage from './pages/SearchPage';
+import AdminPage from './pages/AdminPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 // Placeholder pages for future prompts — prevents broken routes
 const PlaceholderPage = ({ title }) => (
@@ -78,17 +80,19 @@ const App = () => {
             <Route path="/ai-planner" element={<AIPlannerPage />} />
             <Route path="/flights" element={<FlightSearchPage />} />
             <Route path="/hotels" element={<HotelSearchPage />} />
-            <Route path="/bookings"    element={<BookingsPage />} />
-            <Route path="/expenses"   element={<ExpenseTrackerPage />} />
-            <Route path="/maps"       element={<MapExplorerPage />} />
-            <Route path="/weather"       element={<WeatherPage />} />
+            <Route path="/bookings" element={<BookingsPage />} />
+            <Route path="/expenses" element={<ExpenseTrackerPage />} />
+            <Route path="/maps" element={<MapExplorerPage />} />
+            <Route path="/weather" element={<WeatherPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/wishlist"       element={<WishlistPage />} />
-            <Route path="/journal"        element={<JournalPage />} />
-            <Route path="/journal/:id"    element={<JournalEntryPage />} />
-            <Route path="/reviews"        element={<ReviewsPage />} />
-            <Route path="/search"         element={<SearchPage />} />
-            <Route path="/chatbot"    element={<ChatbotPage />} />
+            <Route path="/wishlist" element={<WishlistPage />} />
+            <Route path="/journal" element={<JournalPage />} />
+            <Route path="/journal/:id" element={<JournalEntryPage />} />
+            <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Routes>

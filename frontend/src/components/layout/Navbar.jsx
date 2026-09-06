@@ -5,14 +5,14 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth }                 from '../../context/AuthContext';
-import toast                       from 'react-hot-toast';
-import NotificationBell            from '../NotificationBell';
+import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
+import NotificationBell from '../NotificationBell';
 
 const Navbar = () => {
-  const { user, logout }  = useAuth();
-  const navigate          = useNavigate();
-  const location          = useLocation();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Track whether the user has scrolled down (for transparent→solid effect)
   const [scrolled, setScrolled] = useState(false);
@@ -63,6 +63,32 @@ const Navbar = () => {
               </span>
               {/* 🔔 Real-time notification bell */}
               <NotificationBell />
+
+              {/* 🛡️ Admin Dashboard quick-access icon (visible only to ADMIN role) */}
+              {user.role === 'ADMIN' && (
+                <div className="relative group">
+                  <Link
+                    to="/admin"
+                    id="navbar-admin-btn"
+                    className="relative flex items-center justify-center w-9 h-9 rounded-xl
+                               text-red-400 hover:text-white hover:bg-red-600/20 transition-all
+                               text-lg border border-red-500/20 hover:border-red-500/40"
+                    aria-label="Admin Dashboard"
+                  >
+                    🛡️
+                  </Link>
+                  {/* Tooltip */}
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2.5 py-1
+                                  bg-gray-800 text-white text-xs font-medium rounded-lg
+                                  border border-gray-700 whitespace-nowrap pointer-events-none
+                                  opacity-0 group-hover:opacity-100 transition-opacity duration-150
+                                  shadow-lg z-50">
+                    Admin Panel
+                    <span className="absolute -top-1.5 left-1/2 -translate-x-1/2 border-4
+                                     border-transparent border-b-gray-700" />
+                  </div>
+                </div>
+              )}
 
               {/* 📔 Journal quick-access icon with tooltip */}
               <div className="relative group">
@@ -121,7 +147,7 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/login"    className="text-gray-300 text-sm hover:text-white transition-colors font-medium">Login</Link>
+              <Link to="/login" className="text-gray-300 text-sm hover:text-white transition-colors font-medium">Login</Link>
               <Link to="/register" className="btn-primary py-2 px-5 text-sm rounded-xl">Get Started</Link>
             </>
           )}
@@ -153,7 +179,7 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/login"    className="btn-secondary w-full justify-center">Login</Link>
+              <Link to="/login" className="btn-secondary w-full justify-center">Login</Link>
               <Link to="/register" className="btn-primary w-full justify-center">Get Started Free</Link>
             </>
           )}

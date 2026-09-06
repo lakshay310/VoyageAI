@@ -9,6 +9,7 @@ import { NavLink } from 'react-router-dom';
 
 const navItems = [
   { label: 'Dashboard',        icon: '🏠', path: '/dashboard' },
+  { label: 'Analytics',        icon: '📊', path: '/analytics' },
   { label: 'My Trips',         icon: '🧳', path: '/trips' },
   { label: 'AI Planner',       icon: '🤖', path: '/ai-planner' },
   { label: 'Interactive Maps', icon: '🗺️', path: '/maps' },
@@ -21,6 +22,7 @@ const navItems = [
   { label: 'Expenses',         icon: '💰', path: '/expenses' },
   { label: 'Profile',          icon: '👤', path: '/profile' },
 ];
+
 
 const Sidebar = () => {
   // expanded = true while mouse is over the sidebar
