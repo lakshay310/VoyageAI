@@ -7,6 +7,12 @@ const app = require('../app');
 const userRepository = require('../repositories/user.repository');
 const bcrypt = require('bcryptjs');
 
+// Mock notification service — auth.service calls createAndEmit after register
+// Without this mock, the test would try to connect to a real DB and Socket.io
+jest.mock('../services/notification.service', () => ({
+  createAndEmit: jest.fn().mockResolvedValue({}),
+}));
+
 // Mock the user repository methods
 jest.mock('../repositories/user.repository', () => {
   const mockUsers = {};

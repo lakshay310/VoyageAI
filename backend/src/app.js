@@ -8,6 +8,9 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const { CLIENT_URL } = require('./config/env');
 
+// Rate limiting middleware (Prompt 23 — Security)
+const { generalLimiter, authLimiter } = require('./middlewares/rateLimiter.middleware');
+
 // Import route files
 const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
@@ -33,7 +36,12 @@ const errorHandler = require('./middlewares/error.middleware');
 const app = express();
 
 // ── Security headers ─────────────────────────────────────────────────────────
+// helmet() sets many security-related HTTP headers automatically (e.g. X-Frame-Options, HSTS)
 app.use(helmet());
+
+// ── General Rate Limiter ──────────────────────────────────────────────────────
+// Protects all API routes from abuse — 200 requests per 15 minutes per IP
+app.use('/api', generalLimiter);
 
 // ── CORS: allow requests from the React frontend ──────────────────────────────
 app.use(cors({
@@ -57,7 +65,9 @@ app.get('/api/health', (req, res) => {
 });
 
 // ── Feature routes ───────────────────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
+// Auth routes — apply strict rate limiter for brute-force protection on login/register
+// authLimiter (10 req / 15 min) is injected at the route level in auth.routes.js
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Admin Dashboard route (ADMIN role only)

@@ -9,6 +9,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Navbar from './components/layout/Navbar';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -34,6 +35,8 @@ import ReviewsPage from './pages/ReviewsPage';
 import SearchPage from './pages/SearchPage';
 import AdminPage from './pages/AdminPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import SecurityPage from './pages/SecurityPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // Placeholder pages for future prompts — prevents broken routes
 const PlaceholderPage = ({ title }) => (
@@ -48,8 +51,10 @@ const PlaceholderPage = ({ title }) => (
 
 const App = () => {
   return (
-    // BrowserRouter enables client-side routing
-    <BrowserRouter>
+    // ErrorBoundary catches any unexpected crash in the React tree
+    <ErrorBoundary>
+      {/* BrowserRouter enables client-side routing */}
+      <BrowserRouter>
       {/* AuthProvider makes user data available everywhere */}
       <AuthProvider>
         <Routes>
@@ -92,9 +97,13 @@ const App = () => {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/security" element={<SecurityPage />} />
             <Route path="/chatbot" element={<ChatbotPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
+
+          {/* ── 404 catch-all (must be the very last route) ─────────────────── */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
 
         {/* Global toast notifications */}
@@ -110,7 +119,8 @@ const App = () => {
           }}
         />
       </AuthProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 };
 

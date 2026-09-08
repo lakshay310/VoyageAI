@@ -20,6 +20,7 @@ const navItems = [
   { label: 'Hotels',           icon: '🏨', path: '/hotels' },
   { label: 'Bookings',         icon: '🎫', path: '/bookings' },
   { label: 'Expenses',         icon: '💰', path: '/expenses' },
+  { label: 'Security',         icon: '🔒', path: '/security' },
   { label: 'Profile',          icon: '👤', path: '/profile' },
 ];
 
