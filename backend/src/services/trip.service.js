@@ -2,8 +2,9 @@
 // Business logic for trips.
 // Sits between the Controller (HTTP) and Repository (DB).
 
-const tripRepository     = require('../repositories/trip.repository');
-const notificationService = require('./notification.service'); // for real-time alerts
+const tripRepository      = require('../repositories/trip.repository');
+const notificationService  = require('./notification.service'); // for real-time alerts
+const { invalidateDashboardCache } = require('./dashboard.service'); // Prompt 26: cache busting
 
 /**
  * Create a new trip.
@@ -38,6 +39,9 @@ const createTrip = async (userId, body) => {
     type:    'TRIP_CREATED',
     link:    `/trips`,
   });
+
+  // Bust the dashboard cache so the count updates immediately
+  invalidateDashboardCache(userId);
 
   return trip;
 };
@@ -91,7 +95,12 @@ const updateTrip = async (tripId, userId, body) => {
   if (body.notes !== undefined) updateData.notes = body.notes;
   if (body.itinerary !== undefined) updateData.itinerary = body.itinerary; // allow updating AI itinerary
 
-  return tripRepository.update(tripId, updateData);
+  const updated = await tripRepository.update(tripId, updateData);
+
+  // Bust the dashboard cache
+  invalidateDashboardCache(userId);
+
+  return updated;
 };
 
 /**
@@ -100,7 +109,11 @@ const updateTrip = async (tripId, userId, body) => {
 const deleteTrip = async (tripId, userId) => {
   // Ownership check before deleting
   await getTripById(tripId, userId);
-  return tripRepository.remove(tripId);
+  await tripRepository.remove(tripId);
+
+  // Bust the dashboard cache
+  invalidateDashboardCache(userId);
 };
 
 module.exports = { createTrip, getMyTrips, getTripById, updateTrip, deleteTrip };
+

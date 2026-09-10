@@ -1,53 +1,51 @@
 // src/App.jsx
 // Root component: sets up routing and wraps everything in providers.
 // React Router v6 declarative routes.
+//
+// Prompt 26 — Performance:
+// Pages are loaded with React.lazy() + Suspense (code splitting).
+// The browser only downloads a page's JS chunk when the user FIRST visits it.
+// This shrinks the initial bundle and makes first-load much faster.
 
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/layout/ProtectedRoute';
-import DashboardLayout from './components/layout/DashboardLayout';
-import Navbar from './components/layout/Navbar';
-import ErrorBoundary from './components/ErrorBoundary';
+import { AuthProvider }    from './context/AuthContext';
+import ProtectedRoute      from './components/layout/ProtectedRoute';
+import DashboardLayout     from './components/layout/DashboardLayout';
+import Navbar              from './components/layout/Navbar';
+import ErrorBoundary       from './components/ErrorBoundary';
+import LoadingSpinner      from './components/common/LoadingSpinner';
 
-// Pages
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import ProfilePage from './pages/ProfilePage';
-import TripsPage from './pages/TripsPage';
-import TripDetailPage from './pages/TripDetailPage';
-import AIPlannerPage from './pages/AIPlannerPage';
-import FlightSearchPage from './pages/FlightSearchPage';
-import HotelSearchPage from './pages/HotelSearchPage';
-import BookingsPage from './pages/BookingsPage';
-import ExpenseTrackerPage from './pages/ExpenseTrackerPage';
-import ChatbotPage from './pages/ChatbotPage';
-import MapExplorerPage from './pages/MapExplorerPage';
-import WeatherPage from './pages/WeatherPage';
-import NotificationsPage from './pages/NotificationsPage';
-import WishlistPage from './pages/WishlistPage';
-import JournalPage from './pages/JournalPage';
-import JournalEntryPage from './pages/JournalEntryPage';
-import ReviewsPage from './pages/ReviewsPage';
-import SearchPage from './pages/SearchPage';
-import AdminPage from './pages/AdminPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import SecurityPage from './pages/SecurityPage';
-import NotFoundPage from './pages/NotFoundPage';
-
-// Placeholder pages for future prompts — prevents broken routes
-const PlaceholderPage = ({ title }) => (
-  <div className="max-w-4xl mx-auto">
-    <div className="card text-center py-16">
-      <p className="text-4xl mb-3">🚧</p>
-      <h1 className="text-2xl font-bold text-white">{title}</h1>
-      <p className="text-gray-400 mt-2">Coming in the next prompt!</p>
-    </div>
-  </div>
-);
+// ── Lazy-loaded pages ─────────────────────────────────────────────────────────
+// Each import() call creates a separate JS chunk in the build output.
+// The chunk is fetched from the server only when the route is first visited.
+const LandingPage        = lazy(() => import('./pages/LandingPage'));
+const LoginPage          = lazy(() => import('./pages/LoginPage'));
+const RegisterPage       = lazy(() => import('./pages/RegisterPage'));
+const DashboardPage      = lazy(() => import('./pages/DashboardPage'));
+const ProfilePage        = lazy(() => import('./pages/ProfilePage'));
+const TripsPage          = lazy(() => import('./pages/TripsPage'));
+const TripDetailPage     = lazy(() => import('./pages/TripDetailPage'));
+const AIPlannerPage      = lazy(() => import('./pages/AIPlannerPage'));
+const FlightSearchPage   = lazy(() => import('./pages/FlightSearchPage'));
+const HotelSearchPage    = lazy(() => import('./pages/HotelSearchPage'));
+const BookingsPage       = lazy(() => import('./pages/BookingsPage'));
+const ExpenseTrackerPage = lazy(() => import('./pages/ExpenseTrackerPage'));
+const ChatbotPage        = lazy(() => import('./pages/ChatbotPage'));
+const MapExplorerPage    = lazy(() => import('./pages/MapExplorerPage'));
+const WeatherPage        = lazy(() => import('./pages/WeatherPage'));
+const NotificationsPage  = lazy(() => import('./pages/NotificationsPage'));
+const WishlistPage       = lazy(() => import('./pages/WishlistPage'));
+const JournalPage        = lazy(() => import('./pages/JournalPage'));
+const JournalEntryPage   = lazy(() => import('./pages/JournalEntryPage'));
+const ReviewsPage        = lazy(() => import('./pages/ReviewsPage'));
+const SearchPage         = lazy(() => import('./pages/SearchPage'));
+const AdminPage          = lazy(() => import('./pages/AdminPage'));
+const AnalyticsPage      = lazy(() => import('./pages/AnalyticsPage'));
+const SecurityPage       = lazy(() => import('./pages/SecurityPage'));
+const NotFoundPage       = lazy(() => import('./pages/NotFoundPage'));
 
 const App = () => {
   return (
@@ -57,54 +55,60 @@ const App = () => {
       <BrowserRouter>
       {/* AuthProvider makes user data available everywhere */}
       <AuthProvider>
-        <Routes>
-          {/* ── Public routes (no auth needed) ─────────────────────────────── */}
-          <Route
-            path="/"
-            element={
-              <>
-                <Navbar />
-                <LandingPage />
-              </>
-            }
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+        {/*
+          Suspense shows a spinner while a lazy page chunk is loading.
+          This fallback only appears for ~100–300ms on first visit to a page.
+        */}
+        <Suspense fallback={<LoadingSpinner message="Loading page..." />}>
+          <Routes>
+            {/* ── Public routes (no auth needed) ─────────────────────────────── */}
+            <Route
+              path="/"
+              element={
+                <>
+                  <Navbar />
+                  <LandingPage />
+                </>
+              }
+            />
+            <Route path="/login"    element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
 
-          {/* ── Protected routes (must be logged in) ────────────────────────── */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/trips" element={<TripsPage />} />
-            <Route path="/trips/:id" element={<TripDetailPage />} />
-            <Route path="/ai-planner" element={<AIPlannerPage />} />
-            <Route path="/flights" element={<FlightSearchPage />} />
-            <Route path="/hotels" element={<HotelSearchPage />} />
-            <Route path="/bookings" element={<BookingsPage />} />
-            <Route path="/expenses" element={<ExpenseTrackerPage />} />
-            <Route path="/maps" element={<MapExplorerPage />} />
-            <Route path="/weather" element={<WeatherPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
-            <Route path="/journal" element={<JournalPage />} />
-            <Route path="/journal/:id" element={<JournalEntryPage />} />
-            <Route path="/reviews" element={<ReviewsPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/security" element={<SecurityPage />} />
-            <Route path="/chatbot" element={<ChatbotPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
+            {/* ── Protected routes (must be logged in) ────────────────────────── */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard"     element={<DashboardPage />} />
+              <Route path="/trips"         element={<TripsPage />} />
+              <Route path="/trips/:id"     element={<TripDetailPage />} />
+              <Route path="/ai-planner"    element={<AIPlannerPage />} />
+              <Route path="/flights"       element={<FlightSearchPage />} />
+              <Route path="/hotels"        element={<HotelSearchPage />} />
+              <Route path="/bookings"      element={<BookingsPage />} />
+              <Route path="/expenses"      element={<ExpenseTrackerPage />} />
+              <Route path="/maps"          element={<MapExplorerPage />} />
+              <Route path="/weather"       element={<WeatherPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/wishlist"      element={<WishlistPage />} />
+              <Route path="/journal"       element={<JournalPage />} />
+              <Route path="/journal/:id"   element={<JournalEntryPage />} />
+              <Route path="/reviews"       element={<ReviewsPage />} />
+              <Route path="/search"        element={<SearchPage />} />
+              <Route path="/admin"         element={<AdminPage />} />
+              <Route path="/analytics"     element={<AnalyticsPage />} />
+              <Route path="/security"      element={<SecurityPage />} />
+              <Route path="/chatbot"       element={<ChatbotPage />} />
+              <Route path="/profile"       element={<ProfilePage />} />
+            </Route>
 
-          {/* ── 404 catch-all (must be the very last route) ─────────────────── */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+            {/* ── 404 catch-all (must be the very last route) ─────────────────── */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
 
         {/* Global toast notifications */}
         <Toaster

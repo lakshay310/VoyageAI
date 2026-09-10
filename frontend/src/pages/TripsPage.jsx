@@ -7,15 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getMyTrips, createTrip } from '../services/trip.service';
 import { formatDate, formatCurrency, getStatusLabel, getDayCount } from '../utils/formatters';
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-const STATUS_COLORS = {
-  PLANNED:   'bg-blue-500/15 text-blue-400 border-blue-500/20',
-  ONGOING:   'bg-green-500/15 text-green-400 border-green-500/20',
-  COMPLETED: 'bg-gray-500/15 text-gray-400 border-gray-500/20',
-  CANCELLED: 'bg-red-500/15 text-red-400 border-red-500/20',
-};
+import { PageHeader, EmptyState } from '../components/common';
+import { STATUS_COLORS } from '../constants';
 
 // Today's date in YYYY-MM-DD format (for date input default values)
 const today = new Date().toISOString().split('T')[0];
@@ -258,18 +251,16 @@ const TripsPage = () => {
 
   return (
     <div className="max-w-5xl mx-auto">
-      {/* Page header */}
-      <div className="flex items-center justify-between mb-7">
-        <div>
-          <h1 className="text-2xl font-bold text-white">My Trips</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            {trips.length} trip{trips.length !== 1 ? 's' : ''} planned
-          </p>
-        </div>
-        <button onClick={() => setShowModal(true)} className="btn-primary">
-          + New Trip
-        </button>
-      </div>
+      {/* Page header (Prompt 27 / Prompt 28 reusable component) */}
+      <PageHeader
+        title="My Trips"
+        subtitle={`${trips.length} trip${trips.length !== 1 ? 's' : ''} planned`}
+        action={
+          <button onClick={() => setShowModal(true)} className="btn-primary">
+            + New Trip
+          </button>
+        }
+      />
 
       {/* Loading skeletons */}
       {loading && (
@@ -284,18 +275,18 @@ const TripsPage = () => {
         </div>
       )}
 
-      {/* Empty state */}
+      {/* Empty state (Prompt 28 reusable component) */}
       {!loading && trips.length === 0 && (
-        <div className="text-center py-24">
-          <p className="text-6xl mb-4">🗺️</p>
-          <h2 className="text-white font-semibold text-xl mb-2">No trips yet!</h2>
-          <p className="text-gray-400 text-sm mb-6">
-            Plan your first trip and start tracking bookings and expenses.
-          </p>
-          <button onClick={() => setShowModal(true)} className="btn-primary">
-            Plan your first trip
-          </button>
-        </div>
+        <EmptyState
+          icon="🗺️"
+          title="No trips yet!"
+          description="Plan your first trip and start tracking bookings and expenses."
+          action={
+            <button onClick={() => setShowModal(true)} className="btn-primary">
+              Plan your first trip
+            </button>
+          }
+        />
       )}
 
       {/* Trip cards grid */}

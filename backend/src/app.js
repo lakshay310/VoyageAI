@@ -2,10 +2,11 @@
 // Creates the Express application with all middlewares and routes wired up.
 // Kept separate from server.js so it is easy to test without starting the HTTP server.
 
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-const helmet = require('helmet');
+const express    = require('express');
+const cors       = require('cors');
+const morgan     = require('morgan');
+const helmet     = require('helmet');
+const compression = require('compression'); // Prompt 26: gzip compression
 const { CLIENT_URL } = require('./config/env');
 
 // Rate limiting middleware (Prompt 23 — Security)
@@ -34,6 +35,12 @@ const searchRoutes = require('./routes/search.routes');
 const errorHandler = require('./middlewares/error.middleware');
 
 const app = express();
+
+// ── Gzip Compression (Prompt 26 — Performance) ───────────────────────────────
+// compresses all HTTP responses before sending them to the client.
+// JSON APIs shrink by ~70% → faster page loads, less bandwidth on mobile.
+// Must come BEFORE routes so every response is compressed.
+app.use(compression());
 
 // ── Security headers ─────────────────────────────────────────────────────────
 // helmet() sets many security-related HTTP headers automatically (e.g. X-Frame-Options, HSTS)
