@@ -220,7 +220,6 @@ ai-trip-planner/
 | 21| Performance             | ✅ (gzip + cache) | (lazy loading)  |
 | 22| Code Refactoring        | ✅          | ✅                   |
 | 23| Deployment Prep         | ✅          | DeploymentPage       |
-| 24| Interview Notes         | —           | InterviewNotesPage   |
 
 ---
 
@@ -437,21 +436,3 @@ npm test             # Runs all tests in src/__tests__/
 ```
 
 ---
-
-## Interview Notes
-
-The in-app interview guide is at `/interview-notes` (log in required).
-
-It covers:
-- 2-minute project pitch
-- Architecture deep-dive
-- Auth & security explanation
-- Database design decisions
-- Real-time notification flow
-- AI integration
-- Performance optimisations
-- Testing strategy
-- Deployment walkthrough
-- 10 common interview Q&A
-
-The full written version is in [`INTERVIEW_NOTES.md`](./INTERVIEW_NOTES.md).
