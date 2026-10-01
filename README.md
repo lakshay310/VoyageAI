@@ -274,8 +274,7 @@ cd frontend && npm run dev   # http://localhost:5173
 |-------------------------------------------|--------------------|
 | http://localhost:5173                     | Frontend           |
 | http://localhost:5000/api/health          | API health check   |
-| http://localhost:5173/deployment (admin)  | Deployment status  |
-| http://localhost:5173/interview-notes     | Interview prep     |
+| http://localhost:5173/deployment (admin)  | Deployment status  |   |
 
 ### Default accounts (after seeding)
 
