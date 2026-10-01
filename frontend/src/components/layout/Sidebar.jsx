@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { label: 'Dashboard',        icon: '🏠', path: '/dashboard' },
@@ -15,19 +16,29 @@ const navItems = [
   { label: 'Interactive Maps', icon: '🗺️', path: '/maps' },
   { label: 'Weather',          icon: '🌦️', path: '/weather' },
   { label: 'Wishlist',         icon: '🌟', path: '/wishlist' },
+  { label: 'Travel Journal',   icon: '📖', path: '/journal' },
   { label: 'Reviews',          icon: '⭐', path: '/reviews' },
   { label: 'Flights',          icon: '✈️', path: '/flights' },
   { label: 'Hotels',           icon: '🏨', path: '/hotels' },
   { label: 'Bookings',         icon: '🎫', path: '/bookings' },
   { label: 'Expenses',         icon: '💰', path: '/expenses' },
+  { label: 'Interview Guide',  icon: '🎓', path: '/interview-notes' },
   { label: 'Security',         icon: '🔒', path: '/security' },
   { label: 'Profile',          icon: '👤', path: '/profile' },
+];
+
+// Admin-only nav items shown at the bottom of the sidebar
+const adminNavItems = [
+  { label: 'Admin Panel',      icon: '🛡️', path: '/admin' },
+  { label: 'Deployment Check', icon: '🚀', path: '/deployment' },
 ];
 
 
 const Sidebar = () => {
   // expanded = true while mouse is over the sidebar
   const [expanded, setExpanded] = useState(false);
+  const { user } = useAuth(); // to conditionally show admin items
+  const isAdmin = user?.role === 'ADMIN';
 
   return (
     <aside
@@ -75,6 +86,35 @@ const Sidebar = () => {
           </NavLink>
         ))}
       </nav>
+
+      {/* ── Admin-only nav items ────────────────────────────────────────── */}
+      {isAdmin && (
+        <nav className="flex flex-col gap-1 pt-3 border-t border-gray-800 mt-3">
+          {adminNavItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl text-sm font-medium
+                 transition-all duration-150
+                 ${expanded ? 'px-3 py-2.5' : 'justify-center px-0 py-2.5'}
+                 ${isActive
+                   ? 'bg-purple-600/20 text-purple-400 border border-purple-600/30'
+                   : 'text-gray-500 hover:text-white hover:bg-gray-800 border border-transparent'
+                 }`
+              }
+            >
+              <span className="text-lg leading-none shrink-0">{item.icon}</span>
+              <span
+                className={`whitespace-nowrap transition-all duration-200
+                            ${expanded ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}
+              >
+                {item.label}
+              </span>
+            </NavLink>
+          ))}
+        </nav>
+      )}
     </aside>
   );
 };

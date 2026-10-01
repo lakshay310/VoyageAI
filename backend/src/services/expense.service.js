@@ -2,29 +2,9 @@
 // Business logic for expenses.
 // Expenses belong to a trip; we always verify trip ownership first.
 
-const expenseRepository = require('../repositories/expense.repository');
-const tripRepository = require('../repositories/trip.repository');
-
-/**
- * Helper: verify the trip exists and belongs to the requesting user.
- */
-const verifyTripOwnership = async (tripId, userId) => {
-  const trip = await tripRepository.findById(tripId);
-
-  if (!trip) {
-    const error = new Error('Trip not found.');
-    error.statusCode = 404;
-    throw error;
-  }
-
-  if (trip.userId !== userId) {
-    const error = new Error('You are not allowed to access this trip.');
-    error.statusCode = 403;
-    throw error;
-  }
-
-  return trip;
-};
+const AppError           = require('../utils/AppError');
+const expenseRepository  = require('../repositories/expense.repository');
+const { verifyTripOwnership } = require('./trip.service'); // shared — not copy-pasted
 
 /**
  * Add a new expense to a trip.
@@ -36,9 +16,9 @@ const createExpense = async (tripId, userId, body) => {
 
   return expenseRepository.create({
     title,
-    amount: parseFloat(amount),
+    amount:   parseFloat(amount),
     category,
-    date: date ? new Date(date) : new Date(), // default to today
+    date:     date ? new Date(date) : new Date(),
     notes,
     tripId,
   });
@@ -59,19 +39,17 @@ const updateExpense = async (expenseId, userId, body) => {
   const expense = await expenseRepository.findById(expenseId);
 
   if (!expense) {
-    const error = new Error('Expense not found.');
-    error.statusCode = 404;
-    throw error;
+    throw new AppError('Expense not found.', 404);
   }
 
   await verifyTripOwnership(expense.tripId, userId);
 
   const updateData = {};
-  if (body.title)    updateData.title    = body.title;
-  if (body.amount !== undefined) updateData.amount = parseFloat(body.amount);
-  if (body.category) updateData.category = body.category;
-  if (body.date)     updateData.date     = new Date(body.date);
-  if (body.notes !== undefined)  updateData.notes  = body.notes;
+  if (body.title    !== undefined) updateData.title    = body.title;
+  if (body.amount   !== undefined) updateData.amount   = parseFloat(body.amount);
+  if (body.category !== undefined) updateData.category = body.category;
+  if (body.date     !== undefined) updateData.date     = new Date(body.date);
+  if (body.notes    !== undefined) updateData.notes    = body.notes;
 
   return expenseRepository.update(expenseId, updateData);
 };
@@ -83,9 +61,7 @@ const deleteExpense = async (expenseId, userId) => {
   const expense = await expenseRepository.findById(expenseId);
 
   if (!expense) {
-    const error = new Error('Expense not found.');
-    error.statusCode = 404;
-    throw error;
+    throw new AppError('Expense not found.', 404);
   }
 
   await verifyTripOwnership(expense.tripId, userId);

@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "prestart": "node scripts/check-env.js",
+    "build": "npx prisma generate",
+    "check:env": "node scripts/check-env.js",
+    "health": "node scripts/health-check.js",
     "test": "jest --forceExit",
     "seed": "node prisma/seed.js",
     "migrate": "npx prisma migrate dev"

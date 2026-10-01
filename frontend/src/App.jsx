@@ -45,6 +45,8 @@ const SearchPage         = lazy(() => import('./pages/SearchPage'));
 const AdminPage          = lazy(() => import('./pages/AdminPage'));
 const AnalyticsPage      = lazy(() => import('./pages/AnalyticsPage'));
 const SecurityPage       = lazy(() => import('./pages/SecurityPage'));
+const DeploymentPage     = lazy(() => import('./pages/DeploymentPage'));
+const InterviewNotesPage = lazy(() => import('./pages/InterviewNotesPage'));
 const NotFoundPage       = lazy(() => import('./pages/NotFoundPage'));
 
 const App = () => {
@@ -82,27 +84,29 @@ const App = () => {
                 </ProtectedRoute>
               }
             >
-              <Route path="/dashboard"     element={<DashboardPage />} />
-              <Route path="/trips"         element={<TripsPage />} />
-              <Route path="/trips/:id"     element={<TripDetailPage />} />
-              <Route path="/ai-planner"    element={<AIPlannerPage />} />
-              <Route path="/flights"       element={<FlightSearchPage />} />
-              <Route path="/hotels"        element={<HotelSearchPage />} />
-              <Route path="/bookings"      element={<BookingsPage />} />
-              <Route path="/expenses"      element={<ExpenseTrackerPage />} />
-              <Route path="/maps"          element={<MapExplorerPage />} />
-              <Route path="/weather"       element={<WeatherPage />} />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route path="/wishlist"      element={<WishlistPage />} />
-              <Route path="/journal"       element={<JournalPage />} />
-              <Route path="/journal/:id"   element={<JournalEntryPage />} />
-              <Route path="/reviews"       element={<ReviewsPage />} />
-              <Route path="/search"        element={<SearchPage />} />
-              <Route path="/admin"         element={<AdminPage />} />
-              <Route path="/analytics"     element={<AnalyticsPage />} />
-              <Route path="/security"      element={<SecurityPage />} />
-              <Route path="/chatbot"       element={<ChatbotPage />} />
-              <Route path="/profile"       element={<ProfilePage />} />
+              <Route path="/dashboard"       element={<DashboardPage />} />
+              <Route path="/trips"           element={<TripsPage />} />
+              <Route path="/trips/:id"       element={<TripDetailPage />} />
+              <Route path="/ai-planner"      element={<AIPlannerPage />} />
+              <Route path="/flights"         element={<FlightSearchPage />} />
+              <Route path="/hotels"          element={<HotelSearchPage />} />
+              <Route path="/bookings"        element={<BookingsPage />} />
+              <Route path="/expenses"        element={<ExpenseTrackerPage />} />
+              <Route path="/maps"            element={<MapExplorerPage />} />
+              <Route path="/weather"         element={<WeatherPage />} />
+              <Route path="/notifications"   element={<NotificationsPage />} />
+              <Route path="/wishlist"        element={<WishlistPage />} />
+              <Route path="/journal"         element={<JournalPage />} />
+              <Route path="/journal/:id"     element={<JournalEntryPage />} />
+              <Route path="/reviews"         element={<ReviewsPage />} />
+              <Route path="/search"          element={<SearchPage />} />
+              <Route path="/admin"           element={<AdminPage />} />
+              <Route path="/analytics"       element={<AnalyticsPage />} />
+              <Route path="/security"        element={<SecurityPage />} />
+              <Route path="/deployment"      element={<DeploymentPage />} />
+              <Route path="/interview-notes" element={<InterviewNotesPage />} />
+              <Route path="/chatbot"         element={<ChatbotPage />} />
+              <Route path="/profile"         element={<ProfilePage />} />
             </Route>
 
             {/* ── 404 catch-all (must be the very last route) ─────────────────── */}

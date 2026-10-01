@@ -1,4 +1,12 @@
-node_modules
-uploads
+node_modules/
+uploads/
+storage/
+dist/
+coverage/
+*.log
+
+# Environment variables
 .env
-dist
+.env.*
+!.env.example
+!.env.production.example

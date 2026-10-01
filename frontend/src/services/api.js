@@ -10,7 +10,10 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',  // Backend URL
+  // VITE_API_URL is set in .env (dev: http://localhost:5000/api)
+  // and in the deployment platform env vars (prod: https://your-api.onrender.com/api).
+  // Using import.meta.env means the same build works in both environments.
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: { 'Content-Type': 'application/json' },
 });
 

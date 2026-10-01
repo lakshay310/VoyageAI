@@ -30,6 +30,7 @@ const wishlistRoutes = require('./routes/wishlist.routes');
 const journalRoutes = require('./routes/journal.routes');
 const reviewRoutes = require('./routes/review.routes');
 const searchRoutes = require('./routes/search.routes');
+const deploymentRoutes = require('./routes/deployment.routes'); // Prompt 29 — Deployment
 
 // Import global error handler (must be last)
 const errorHandler = require('./middlewares/error.middleware');
@@ -124,6 +125,9 @@ app.use('/api/reviews', reviewRoutes);
 
 // Search, Filter & Pagination route
 app.use('/api/search', searchRoutes);
+
+// Deployment status (ADMIN only — shows env, DB health, checklist)
+app.use('/api/deployment', deploymentRoutes);
 
 // ── Global error handler (must come AFTER all routes) ────────────────────────
 app.use(errorHandler);

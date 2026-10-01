@@ -2,7 +2,8 @@
 // Business logic for the Admin Dashboard module.
 // Runs all platform-wide queries and formats the response for the frontend.
 
-const adminRepo = require('../repositories/admin.repository');
+const AppError    = require('../utils/AppError');
+const adminRepo   = require('../repositories/admin.repository');
 
 /**
  * Gather all platform stats in one shot (runs queries in parallel).
@@ -56,10 +57,12 @@ const getDashboardOverview = async () => {
 };
 
 /**
- * Get paginated list of all users with trip counts.
+ * Get paginated list of all users with trip, booking, and review counts.
+ * The admin repo getAllUsers has a custom select (richer than a generic findMany),
+ * so we use it directly but apply the paginate utility's math to avoid duplication.
  */
 const getAllUsers = async (page = 1, limit = 10) => {
-  const currentPage  = Math.max(1, parseInt(page) || 1);
+  const currentPage  = Math.max(1, parseInt(page)  || 1);
   const itemsPerPage = Math.min(100, Math.max(1, parseInt(limit) || 10));
   const skip         = (currentPage - 1) * itemsPerPage;
 
@@ -85,26 +88,20 @@ const getAllUsers = async (page = 1, limit = 10) => {
 
 /**
  * Change a user's role to ADMIN or USER.
- * Security Guard: Requesting admin cannot change their own role (prevents self-lockout).
+ * Security Guard: requesting admin cannot change their own role (prevents self-lockout).
  */
 const updateUserRole = async (requestingAdminId, targetUserId, newRole) => {
   if (requestingAdminId === targetUserId) {
-    const error = new Error('You cannot change your own role.');
-    error.statusCode = 400;
-    throw error;
+    throw new AppError('You cannot change your own role.', 400);
   }
 
   if (!['ADMIN', 'USER'].includes(newRole)) {
-    const error = new Error('Role must be ADMIN or USER.');
-    error.statusCode = 400;
-    throw error;
+    throw new AppError('Role must be ADMIN or USER.', 400);
   }
 
   const existingUser = await adminRepo.findUserById(targetUserId);
   if (!existingUser) {
-    const error = new Error('User not found.');
-    error.statusCode = 404;
-    throw error;
+    throw new AppError('User not found.', 404);
   }
 
   return adminRepo.updateUserRole(targetUserId, newRole);
@@ -112,20 +109,16 @@ const updateUserRole = async (requestingAdminId, targetUserId, newRole) => {
 
 /**
  * Delete a user and cascade their records.
- * Security Guard: Requesting admin cannot delete their own account from the admin dashboard.
+ * Security Guard: requesting admin cannot delete their own account from the admin dashboard.
  */
 const deleteUser = async (requestingAdminId, targetUserId) => {
   if (requestingAdminId === targetUserId) {
-    const error = new Error('You cannot delete your own account from the admin panel.');
-    error.statusCode = 400;
-    throw error;
+    throw new AppError('You cannot delete your own account from the admin panel.', 400);
   }
 
   const existingUser = await adminRepo.findUserById(targetUserId);
   if (!existingUser) {
-    const error = new Error('User not found.');
-    error.statusCode = 404;
-    throw error;
+    throw new AppError('User not found.', 404);
   }
 
   return adminRepo.deleteUser(targetUserId);
