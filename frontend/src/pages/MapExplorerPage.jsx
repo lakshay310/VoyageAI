@@ -122,15 +122,15 @@ const MapExplorerPage = () => {
         zoomControl: false,
       });
 
-      // CartoDB Dark Matter — dark-themed OpenStreetMap-based free tiles
-      // Attribution is required by the tile provider license
+      // OpenStreetMap Standard Tiles — 100% free, no API key needed
+      // CARTO dark tiles now require a paid API key, so we use OSM instead.
+      // A dark CSS filter is applied via the map container's CSS to maintain dark theme.
       window.L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
           attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors ' +
-            '&copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: 'abcd',
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          subdomains: 'abc',
           maxZoom:    19,
         }
       ).addTo(map);
@@ -199,6 +199,7 @@ const MapExplorerPage = () => {
       const label      = m.title.length > 17 ? m.title.slice(0, 15) + '…' : m.title;
 
       // Custom HTML label pin
+      // Note: filter: invert(1) hue-rotate(180deg) counter-acts the parent map container's dark filter
       const icon = window.L.divIcon({
         className: '',
         html: `
@@ -216,6 +217,7 @@ const MapExplorerPage = () => {
             gap:5px;
             box-shadow:0 6px 20px rgba(0,0,0,0.7);
             cursor:pointer;
+            filter: invert(1) hue-rotate(180deg) brightness(1.18) saturate(1.1);
           ">
             <span>${emoji}</span><span>${label}</span>
           </div>`,
@@ -389,7 +391,16 @@ const MapExplorerPage = () => {
         <div className="lg:col-span-3 relative bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl" style={{ minHeight: '540px' }}>
 
           {/* OSM map div — Leaflet renders here */}
-          <div id="osm-map" style={{ width: '100%', height: '100%', minHeight: '540px' }} />
+          {/* CSS filter: invert(1) hue-rotate(180deg) gives a dark map look — no API key needed */}
+          <div
+            id="osm-map"
+            style={{
+              width: '100%',
+              height: '100%',
+              minHeight: '540px',
+              filter: 'invert(1) hue-rotate(180deg) brightness(0.85) saturate(0.9)',
+            }}
+          />
 
           {/* Category filter overlay */}
           <div className="absolute top-3 left-3 z-[1000] flex flex-wrap gap-1.5 bg-gray-950/85 backdrop-blur-md p-2 rounded-2xl border border-gray-800">
