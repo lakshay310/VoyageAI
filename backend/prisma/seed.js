@@ -39,7 +39,32 @@ async function main() {
     },
   });
 
-  console.log(`✅ Users created: ${admin.email}, ${demoUser.email}`);
+  const voyageAdminPass = await bcrypt.hash('admin1234', 10);
+  const voyageUserPass  = await bcrypt.hash('test1234', 10);
+
+  await prisma.user.upsert({
+    where: { email: 'admin@voyage.ai' },
+    update: {},
+    create: {
+      name: 'Voyage Admin',
+      email: 'admin@voyage.ai',
+      password: voyageAdminPass,
+      role: 'ADMIN',
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: 'weathertest2@voyage.ai' },
+    update: {},
+    create: {
+      name: 'Weather Test User',
+      email: 'weathertest2@voyage.ai',
+      password: voyageUserPass,
+      role: 'USER',
+    },
+  });
+
+  console.log(`✅ Users created: ${admin.email}, ${demoUser.email}, weathertest2@voyage.ai, admin@voyage.ai`);
 
   // ── 2. Create Trips ──────────────────────────────────────────────────────────
   // Clean up previous seed trips for demo user so seed is idempotent

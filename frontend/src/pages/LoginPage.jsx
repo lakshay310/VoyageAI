@@ -260,7 +260,7 @@ const LoginPage = () => {
             {/* Interactive Demo credentials card */}
             {isAdmin ? (
               <div
-                onClick={() => fillDemo('admin@voyage.ai', 'admin1234')}
+                onClick={() => fillDemo('admin@tripplanner.com', 'Admin@123')}
                 className="bg-red-950/30 border border-red-800/40 rounded-xl p-3.5 cursor-pointer hover:bg-red-900/30 transition-all group"
                 title="Click to autofill"
               >
@@ -273,15 +273,15 @@ const LoginPage = () => {
                   </span>
                 </div>
                 <p className="text-gray-400 text-xs">
-                  Email: <span className="text-gray-200 font-mono">admin@voyage.ai</span>
+                  Email: <span className="text-gray-200 font-mono">admin@tripplanner.com</span>
                 </p>
                 <p className="text-gray-400 text-xs mt-0.5">
-                  Password: <span className="text-gray-200 font-mono">admin1234</span>
+                  Password: <span className="text-gray-200 font-mono">Admin@123</span>
                 </p>
               </div>
             ) : (
               <div
-                onClick={() => fillDemo('weathertest2@voyage.ai', 'test1234')}
+                onClick={() => fillDemo('demo@tripplanner.com', 'Demo@123')}
                 className="bg-blue-950/30 border border-blue-800/40 rounded-xl p-3.5 cursor-pointer hover:bg-blue-900/30 transition-all group"
                 title="Click to autofill"
               >
@@ -294,10 +294,10 @@ const LoginPage = () => {
                   </span>
                 </div>
                 <p className="text-gray-400 text-xs">
-                  Email: <span className="text-gray-200 font-mono">weathertest2@voyage.ai</span>
+                  Email: <span className="text-gray-200 font-mono">demo@tripplanner.com</span>
                 </p>
                 <p className="text-gray-400 text-xs mt-0.5">
-                  Password: <span className="text-gray-200 font-mono">test1234</span>
+                  Password: <span className="text-gray-200 font-mono">Demo@123</span>
                 </p>
               </div>
             )}

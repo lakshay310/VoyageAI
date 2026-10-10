@@ -55,8 +55,26 @@ app.use(helmet());
 app.use('/api', generalLimiter);
 
 // ── CORS: allow requests from the React frontend ──────────────────────────────
+// CLIENT_URL can be a single URL or comma-separated list of allowed origins
+const allowedOrigins = CLIENT_URL
+  .split(',')
+  .map((u) => u.trim())
+  .filter(Boolean);
+
+// Always allow localhost in development
+if (process.env.NODE_ENV !== 'production') {
+  allowedOrigins.push('http://localhost:5173', 'http://localhost:3000');
+}
+
 app.use(cors({
-  origin: CLIENT_URL,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, curl, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.some((o) => origin.startsWith(o))) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   credentials: true, // allow cookies if needed
 }));
 

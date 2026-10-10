@@ -1,4 +1,4 @@
-﻿// scripts/check-env.js
+// scripts/check-env.js
 // Run this BEFORE deploying to production to make sure every required
 // environment variable is set.  It exits with code 1 if anything is missing,
 // so CI/CD pipelines will fail fast instead of deploying a broken build.
@@ -28,13 +28,15 @@ const REQUIRED_VARS = [
   // CORS
   { key: 'CLIENT_URL',            hint: 'Your deployed frontend URL e.g. https://myapp.com' },
 
-  // Cloudinary (image uploads)
-  { key: 'CLOUDINARY_CLOUD_NAME', hint: 'From cloudinary.com dashboard' },
-  { key: 'CLOUDINARY_API_KEY',    hint: 'From cloudinary.com dashboard' },
-  { key: 'CLOUDINARY_API_SECRET', hint: 'From cloudinary.com dashboard' },
-
   // Gemini AI
   { key: 'GEMINI_API_KEY',        hint: 'From Google AI Studio (aistudio.google.com)' },
+];
+
+// Optional vars — warn but don't block startup
+const OPTIONAL_VARS = [
+  { key: 'CLOUDINARY_CLOUD_NAME', hint: 'From cloudinary.com dashboard (needed for avatar uploads)' },
+  { key: 'CLOUDINARY_API_KEY',    hint: 'From cloudinary.com dashboard (needed for avatar uploads)' },
+  { key: 'CLOUDINARY_API_SECRET', hint: 'From cloudinary.com dashboard (needed for avatar uploads)' },
 ];
 
 // ── Validation ───────────────────────────────────────────────────────────────
@@ -59,11 +61,25 @@ REQUIRED_VARS.forEach(({ key, hint }) => {
   }
 });
 
+// ── Optional vars check (warn only — don't block startup) ─────────────────────
+console.log('\n📋  Optional environment variables:\n');
+OPTIONAL_VARS.forEach(({ key, hint }) => {
+  const value = process.env[key];
+  if (!value || value.trim() === '' || value.startsWith('your_')) {
+    console.warn(`  ⚠️   ${key} is not set — ${hint}`);
+  } else {
+    const masked = value.length > 6
+      ? value.slice(0, 3) + '***' + value.slice(-3)
+      : '***';
+    console.log(`  ✅  ${key} = ${masked}`);
+  }
+});
+
 // ── Extra safety checks ───────────────────────────────────────────────────────
 
 // Reject the dev-default JWT secret in production
-if (process.env.JWT_SECRET === 'changeme') {
-  console.error('\n  ❌  JWT_SECRET is still "changeme". Please use a strong random secret.\n');
+if (process.env.JWT_SECRET === 'changeme' || process.env.JWT_SECRET === 'your_super_secret_jwt_key_here') {
+  console.error('\n  ❌  JWT_SECRET is still a placeholder. Please set a strong random secret.\n');
   hasError = true;
 }
 
