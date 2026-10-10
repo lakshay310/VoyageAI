@@ -37,6 +37,9 @@ const errorHandler = require('./middlewares/error.middleware');
 
 const app = express();
 
+// Trust reverse proxy (Render, Heroku, etc.) for rate limiting and client IP
+app.set('trust proxy', 1);
+
 // ── Gzip Compression (Prompt 26 — Performance) ───────────────────────────────
 // compresses all HTTP responses before sending them to the client.
 // JSON APIs shrink by ~70% → faster page loads, less bandwidth on mobile.

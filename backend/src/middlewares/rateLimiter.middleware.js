@@ -14,6 +14,7 @@ const generalLimiter = rateLimit({
   max: 200,                  // Maximum requests per window per IP
   standardHeaders: true,     // Return rate limit info in the 'RateLimit-*' headers
   legacyHeaders: false,      // Disable old 'X-RateLimit-*' headers
+  validate: { xForwardedForHeader: false },
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again after 15 minutes.',
@@ -31,6 +32,7 @@ const authLimiter = rateLimit({
   max: 10,                   // Only 10 attempts allowed
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   message: {
     success: false,
     message: 'Too many login attempts. Please wait 15 minutes before trying again.',
