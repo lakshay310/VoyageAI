@@ -2,6 +2,8 @@
 
 > A full-stack AI-powered travel planning platform built with a clean **Route → Controller → Service → Repository → Prisma** architecture.
 
+🌐 **Live Demo:** [https://voyageai-muob.onrender.com](https://voyageai-muob.onrender.com)
+
 ---
 
 ## Table of Contents
