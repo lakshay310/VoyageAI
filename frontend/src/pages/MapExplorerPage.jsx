@@ -111,6 +111,11 @@ const MapExplorerPage = () => {
       const container = document.getElementById('osm-map');
       if (!container) return;
 
+      // Reset any orphaned leaflet ID on the container before initializing
+      if (container._leaflet_id) {
+        container._leaflet_id = null;
+      }
+
       const map = window.L.map('osm-map', {
         center:      [20.5937, 78.9629], // India center as default
         zoom:        5,
@@ -136,12 +141,34 @@ const MapExplorerPage = () => {
       mapInstanceRef.current  = map;
       markersGroupRef.current = window.L.layerGroup().addTo(map);
 
+      // Invalidate size after layout settles to guarantee tiles are 100% visible
+      setTimeout(() => {
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 250);
+
       // Load initial city
       loadCity('Goa');
     };
 
+    const handleResize = () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    };
+    window.addEventListener('resize', handleResize);
+
     injectLeaflet();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+      window.removeEventListener('resize', handleResize);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+        markersGroupRef.current = null;
+      }
+    };
   }, []);
 
   // ── Render Leaflet markers from data ──────────────────────────────────────
@@ -152,6 +179,7 @@ const MapExplorerPage = () => {
     const map   = mapInstanceRef.current;
     const group = markersGroupRef.current;
     group.clearLayers();
+    map.invalidateSize();
 
     // Fly to city/trip center
     const center = data.center || data.city;

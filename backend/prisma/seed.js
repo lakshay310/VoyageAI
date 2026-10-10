@@ -42,8 +42,8 @@ async function main() {
   console.log(`✅ Users created: ${admin.email}, ${demoUser.email}`);
 
   // ── 2. Create Trips ──────────────────────────────────────────────────────────
-  // Use upsert-like pattern: delete old trips for demo user, then recreate
-  // (simpler than upsert for complex nested creates)
+  // Clean up previous seed trips for demo user so seed is idempotent
+  await prisma.trip.deleteMany({ where: { userId: demoUser.id } });
 
   const goaTrip = await prisma.trip.create({
     data: {

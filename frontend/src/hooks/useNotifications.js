@@ -17,8 +17,10 @@ import { useAuth } from '../context/AuthContext';
 import * as notifService from '../services/notification.service';
 
 // Connect to our backend Socket.io server
-// Vite's proxy handles the /socket.io path automatically
-const SOCKET_URL = 'http://localhost:5000';
+const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL ||
+  import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') ||
+  'http://localhost:5000';
 
 const useNotifications = () => {
   const { user } = useAuth();

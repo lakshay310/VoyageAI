@@ -3,6 +3,7 @@
 // Generates map markers, calculates offsets, geocodes cities, and compiles trip map views.
 
 const mapRepository = require('../repositories/map.repository');
+const hotelService = require('./hotel.service');
 
 // Sample points of interest (Sightseeing & Dining) offsets for popular cities
 const ATTRACTIONS_BY_CITY = {
@@ -52,6 +53,13 @@ const resolveCityCoords = (cityName = 'Goa') => {
  * Fetch map data for a specific city.
  */
 const getCityMapData = async (cityName) => {
+  if (hotelService.ensureSeedData) {
+    try {
+      await hotelService.ensureSeedData();
+    } catch (err) {
+      console.warn('Could not auto-seed hotels for map:', err.message);
+    }
+  }
   const cityInfo = resolveCityCoords(cityName);
   const dbHotels = await mapRepository.findHotelsByCity(cityName);
 
