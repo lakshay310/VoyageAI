@@ -28,6 +28,24 @@ if (!globalThis.fetch) {
 const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const FORECAST_URL  = 'https://api.open-meteo.com/v1/forecast';
 
+// ── In-memory weather cache (TTL: 15 minutes) ─────────────────────────────────
+// Open-Meteo has rate limits (429). Caching prevents hammering the API on every
+// page load. Weather data doesn't change minute-to-minute, so 15 min is fine.
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const weatherCache = new Map(); // key: "lat,lng" → { data, expiresAt }
+
+const getCached = (key) => {
+  const entry = weatherCache.get(key);
+  if (entry && Date.now() < entry.expiresAt) return entry.data;
+  weatherCache.delete(key);
+  return null;
+};
+
+const setCache = (key, data) => {
+  weatherCache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+};
+
+
 // ── Known city coordinates lookup table ──────────────────────────────────────
 // This prevents wrong geocoding for popular Indian & international destinations.
 // When a search matches this table exactly (case-insensitive), we skip the
@@ -163,8 +181,17 @@ const geocodeCity = async (cityName) => {
 
 /**
  * Fetches current weather + 7-day forecast from Open-Meteo.
+ * Results are cached for 15 minutes to avoid Open-Meteo 429 rate limits.
  */
 const fetchForecast = async (lat, lng, timezone = 'auto') => {
+  // ── Cache check ────────────────────────────────────────────────────────────
+  const cacheKey = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+  const cached = getCached(cacheKey);
+  if (cached) {
+    console.log(`[weather] Cache HIT for ${cacheKey}`);
+    return cached;
+  }
+
   const params = new URLSearchParams({
     latitude:         lat,
     longitude:        lng,
@@ -178,22 +205,33 @@ const fetchForecast = async (lat, lng, timezone = 'auto') => {
     temperature_unit: 'celsius',
   });
 
-  // 10-second timeout — prevents hanging on Render free tier
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 10000);
-  let res;
-  try {
-    res = await fetch(`${FORECAST_URL}?${params.toString()}`, { signal: controller.signal });
-  } catch (fetchErr) {
+  // ── Fetch with retry on 429 ────────────────────────────────────────────────
+  const doFetch = async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 10000);
+    let res;
+    try {
+      res = await fetch(`${FORECAST_URL}?${params.toString()}`, { signal: controller.signal });
+    } catch (fetchErr) {
+      clearTimeout(timer);
+      const err = new Error('Weather API timed out. Please try again.');
+      err.statusCode = 504;
+      throw err;
+    }
     clearTimeout(timer);
-    const err = new Error('Weather API timed out. Please try again.');
-    err.statusCode = 504;
-    throw err;
+    return res;
+  };
+
+  let res = await doFetch();
+
+  // If rate-limited (429), wait 2s and retry once
+  if (res.status === 429) {
+    console.warn('[weather] Open-Meteo 429 rate limit — retrying after 2s...');
+    await new Promise((r) => setTimeout(r, 2000));
+    res = await doFetch();
   }
-  clearTimeout(timer);
 
   if (!res.ok) {
-    // Log the actual Open-Meteo error for debugging
     let body = '';
     try { body = await res.text(); } catch { /* ignore */ }
     console.error(`[weather] Open-Meteo forecast API error ${res.status}: ${body}`);
@@ -202,7 +240,13 @@ const fetchForecast = async (lat, lng, timezone = 'auto') => {
     throw err;
   }
 
-  return res.json();
+  const data = await res.json();
+
+  // Store in cache for 15 minutes
+  setCache(cacheKey, data);
+  console.log(`[weather] Cache SET for ${cacheKey}`);
+
+  return data;
 };
 
 /**
