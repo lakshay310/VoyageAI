@@ -170,7 +170,9 @@ const fetchForecast = async (lat, lng, timezone = 'auto') => {
     longitude:        lng,
     timezone,
     forecast_days:    7,
-    current:          'temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,precipitation,uv_index',
+    // NOTE: uv_index is NOT a valid 'current' variable in Open-Meteo.
+    // It is only available in 'hourly'. UV data comes from daily uv_index_max.
+    current:          'temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code,precipitation',
     daily:            'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,wind_speed_10m_max',
     wind_speed_unit:  'kmh',
     temperature_unit: 'celsius',
@@ -191,7 +193,11 @@ const fetchForecast = async (lat, lng, timezone = 'auto') => {
   clearTimeout(timer);
 
   if (!res.ok) {
-    const err = new Error('Weather forecast API request failed.');
+    // Log the actual Open-Meteo error for debugging
+    let body = '';
+    try { body = await res.text(); } catch { /* ignore */ }
+    console.error(`[weather] Open-Meteo forecast API error ${res.status}: ${body}`);
+    const err = new Error(`Weather forecast API error (${res.status}). Please try again.`);
     err.statusCode = 502;
     throw err;
   }

@@ -110,7 +110,8 @@ const getWeatherForCity = async (cityName) => {
     humidity:          cur.relative_humidity_2m,
     windSpeed:         Math.round(cur.wind_speed_10m),
     precipitation:     cur.precipitation,
-    uvIndex:           cur.uv_index,
+    // uv_index is not a 'current' variable in Open-Meteo — use today's daily max instead
+    uvIndex:           raw.daily?.uv_index_max?.[0] ?? null,
     weather:           decodeWeatherCode(cur.weather_code),
   };
 
