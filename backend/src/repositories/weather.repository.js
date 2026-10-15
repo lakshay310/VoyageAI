@@ -24,9 +24,10 @@ if (!globalThis.fetch) {
   }
 }
 
-// ── Open-Meteo API base URLs ──────────────────────────────────────────────────
-const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
-const FORECAST_URL  = 'https://api.open-meteo.com/v1/forecast';
+// ── Weather API base URLs ──────────────────────────────────────────────────────
+const WEATHER_API_URL = 'https://api.weatherapi.com/v1/forecast.json';
+const GEOCODING_URL   = 'https://geocoding-api.open-meteo.com/v1/search';
+const FORECAST_URL    = 'https://api.open-meteo.com/v1/forecast';
 
 // ── In-memory weather cache (TTL: 15 minutes) ─────────────────────────────────
 // Open-Meteo has rate limits (429). Caching prevents hammering the API on every
@@ -250,6 +251,45 @@ const fetchForecast = async (lat, lng, timezone = 'auto') => {
 };
 
 /**
+ * Fetches current weather + 7-day forecast from WeatherAPI.com if WEATHER_API_KEY is configured.
+ * Returns null if no API key is provided or if the call fails.
+ */
+const fetchFromWeatherApi = async (query) => {
+  const apiKey = (process.env.WEATHER_API_KEY || process.env.WEATHERAPI_KEY || '').trim();
+  if (!apiKey) return null;
+
+  const cacheKey = `weatherapi:${query.trim().toLowerCase()}`;
+  const cached = getCached(cacheKey);
+  if (cached) {
+    console.log(`[weather.repository] Cache HIT for WeatherAPI: ${query}`);
+    return cached;
+  }
+
+  const url = `${WEATHER_API_URL}?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(query)}&days=7&aqi=no&alerts=no`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) {
+      let errBody = '';
+      try { errBody = await res.text(); } catch { /* ignore */ }
+      console.warn(`[weather.repository] WeatherAPI HTTP ${res.status}: ${errBody}`);
+      return null;
+    }
+    const data = await res.json();
+    setCache(cacheKey, data);
+    console.log(`[weather.repository] WeatherAPI success for ${query}`);
+    return data;
+  } catch (err) {
+    clearTimeout(timer);
+    console.warn(`[weather.repository] WeatherAPI request error: ${err.message}`);
+    return null;
+  }
+};
+
+/**
  * Fetch a trip's destination from our PostgreSQL database via Prisma.
  */
 const findTripDestination = async (tripId, userId) => {
@@ -262,5 +302,6 @@ const findTripDestination = async (tripId, userId) => {
 module.exports = {
   geocodeCity,
   fetchForecast,
+  fetchFromWeatherApi,
   findTripDestination,
 };

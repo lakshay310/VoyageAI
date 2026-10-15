@@ -39,6 +39,51 @@ const WMO_CODES = {
   99: { label: 'Thunderstorm w/ Hail',   emoji: '⛈️',  severity: 'bad'     },
 };
 
+const WEATHER_API_CONDITIONS = {
+  1000: { label: 'Sunny / Clear', emoji: '☀️', severity: 'good' },
+  1003: { label: 'Partly Cloudy', emoji: '⛅', severity: 'good' },
+  1006: { label: 'Cloudy', emoji: '☁️', severity: 'neutral' },
+  1009: { label: 'Overcast', emoji: '☁️', severity: 'neutral' },
+  1030: { label: 'Mist', emoji: '🌫️', severity: 'caution' },
+  1063: { label: 'Patchy Rain', emoji: '🌦️', severity: 'caution' },
+  1066: { label: 'Patchy Snow', emoji: '🌨️', severity: 'caution' },
+  1069: { label: 'Patchy Sleet', emoji: '🌨️', severity: 'caution' },
+  1072: { label: 'Freezing Drizzle', emoji: '🌧️', severity: 'caution' },
+  1087: { label: 'Thundery Outbreaks', emoji: '⛈️', severity: 'bad' },
+  1114: { label: 'Blowing Snow', emoji: '❄️', severity: 'bad' },
+  1117: { label: 'Blizzard', emoji: '❄️', severity: 'bad' },
+  1135: { label: 'Fog', emoji: '🌫️', severity: 'caution' },
+  1144: { label: 'Freezing Fog', emoji: '🌫️', severity: 'caution' },
+  1150: { label: 'Light Drizzle', emoji: '🌦️', severity: 'caution' },
+  1153: { label: 'Light Drizzle', emoji: '🌦️', severity: 'caution' },
+  1180: { label: 'Patchy Light Rain', emoji: '🌦️', severity: 'caution' },
+  1183: { label: 'Light Rain', emoji: '🌧️', severity: 'caution' },
+  1186: { label: 'Moderate Rain', emoji: '🌧️', severity: 'caution' },
+  1189: { label: 'Moderate Rain', emoji: '🌧️', severity: 'caution' },
+  1192: { label: 'Heavy Rain', emoji: '🌧️', severity: 'bad' },
+  1195: { label: 'Heavy Rain', emoji: '🌧️', severity: 'bad' },
+  1240: { label: 'Light Rain Shower', emoji: '🌦️', severity: 'caution' },
+  1243: { label: 'Moderate/Heavy Rain Shower', emoji: '🌧️', severity: 'bad' },
+  1246: { label: 'Torrential Rain', emoji: '⛈️', severity: 'bad' },
+  1273: { label: 'Thunder with Light Rain', emoji: '⛈️', severity: 'bad' },
+  1276: { label: 'Thunder with Heavy Rain', emoji: '⛈️', severity: 'bad' },
+  1279: { label: 'Thunder with Snow', emoji: '⛈️', severity: 'bad' },
+  1282: { label: 'Thunder with Heavy Snow', emoji: '⛈️', severity: 'bad' },
+};
+
+const decodeWeatherApiCondition = (code, text = '') => {
+  if (WEATHER_API_CONDITIONS[code]) return WEATHER_API_CONDITIONS[code];
+  const lower = (text || '').toLowerCase();
+  if (lower.includes('thunder')) return { label: text, emoji: '⛈️', severity: 'bad' };
+  if (lower.includes('snow') || lower.includes('blizzard')) return { label: text, emoji: '❄️', severity: 'bad' };
+  if (lower.includes('heavy rain') || lower.includes('torrential')) return { label: text, emoji: '🌧️', severity: 'bad' };
+  if (lower.includes('rain') || lower.includes('drizzle') || lower.includes('shower')) return { label: text, emoji: '🌧️', severity: 'caution' };
+  if (lower.includes('fog') || lower.includes('mist')) return { label: text, emoji: '🌫️', severity: 'caution' };
+  if (lower.includes('cloud') || lower.includes('overcast')) return { label: text, emoji: '☁️', severity: 'neutral' };
+  if (lower.includes('sunny') || lower.includes('clear')) return { label: text, emoji: '☀️', severity: 'good' };
+  return { label: text || 'Clear', emoji: '🌤️', severity: 'good' };
+};
+
 /**
  * Resolves a WMO code to a weather description object.
  * Falls back to 'Unknown' if the code isn't in our lookup.
@@ -51,7 +96,7 @@ const decodeWeatherCode = (code) => {
  * Generates simple travel advice based on current weather conditions.
  * This is a nice UX touch — shown as tips on the weather page.
  */
-const getTravelAdvice = (temp, weatherCode, humidity) => {
+const getTravelAdvice = (temp, weatherCode, humidity, forcedSeverity = null) => {
   const advice = [];
 
   if (temp >= 35) advice.push('🥵 Very hot — stay hydrated and wear sunscreen SPF 50+.');
@@ -60,13 +105,65 @@ const getTravelAdvice = (temp, weatherCode, humidity) => {
   else if (temp >= 10) advice.push('🧥 Cool weather — carry a light jacket.');
   else advice.push('🧣 Cold weather — layer up with warm clothing.');
 
-  const { severity } = decodeWeatherCode(weatherCode);
+  const severity = forcedSeverity || decodeWeatherCode(weatherCode).severity;
   if (severity === 'bad') advice.push('⚠️ Unfavourable weather — avoid outdoor activities today.');
   else if (severity === 'caution') advice.push('🌂 Carry an umbrella — rain or fog expected.');
 
   if (humidity > 80) advice.push('💧 High humidity — expect it to feel warmer than it is.');
 
   return advice;
+};
+
+/**
+ * Formats a WeatherAPI.com response into our unified weather model.
+ */
+const formatWeatherApiResponse = (data) => {
+  const cur = data.current;
+  const loc = data.location;
+  const weatherDesc = decodeWeatherApiCondition(cur.condition?.code, cur.condition?.text);
+
+  const currentWeather = {
+    temperature:       Math.round(cur.temp_c),
+    feelsLike:         Math.round(cur.feelslike_c),
+    humidity:          cur.humidity,
+    windSpeed:         Math.round(cur.wind_kph),
+    precipitation:     cur.precip_mm,
+    uvIndex:           cur.uv,
+    weather:           weatherDesc,
+  };
+
+  const forecast = (data.forecast?.forecastday || []).map((item) => {
+    const dayDesc = decodeWeatherApiCondition(item.day?.condition?.code, item.day?.condition?.text);
+    return {
+      date:          item.date,
+      day:           new Date(item.date).toLocaleDateString('en-IN', { weekday: 'short' }),
+      weather:       dayDesc,
+      tempMax:       Math.round(item.day.maxtemp_c),
+      tempMin:       Math.round(item.day.mintemp_c),
+      rainChance:    item.day.daily_chance_of_rain ?? 0,
+      maxWindSpeed:  Math.round(item.day.maxwind_kph),
+      uvIndex:       item.day.uv,
+    };
+  });
+
+  const advice = getTravelAdvice(currentWeather.temperature, cur.condition?.code || 0, currentWeather.humidity, weatherDesc.severity);
+
+  return {
+    location: {
+      name:        loc.name,
+      state:       loc.region || null,
+      country:     loc.country,
+      countryCode: loc.country === 'India' ? 'IN' : '',
+      lat:         loc.lat,
+      lng:         loc.lon,
+      timezone:    loc.tz_id || 'auto',
+      population:  0,
+    },
+    current:  currentWeather,
+    forecast,
+    advice,
+    fetchedAt: new Date().toISOString(),
+  };
 };
 
 /**
@@ -90,19 +187,28 @@ const formatDailyForecast = (daily) => {
  * Core service function — orchestrates the full weather fetch for a city.
  * Called by the controller for both city search and trip-based weather.
  *
- * Flow: geocode city → fetch forecast → format & return
+ * Flow:
+ *   1. Check WeatherAPI.com (if WEATHER_API_KEY is configured)
+ *   2. If not configured or failed, fall back to Open-Meteo (geocoding + forecast)
  *
  * @param {string} cityName - City to fetch weather for
  * @returns Structured weather response object
  */
 const getWeatherForCity = async (cityName) => {
-  // Step 1: Convert city name → coordinates using Open-Meteo Geocoding API
-  const location = await weatherRepository.geocodeCity(cityName);
+  // Step 1: Try WeatherAPI.com if API key is provided
+  try {
+    const weatherApiData = await weatherRepository.fetchFromWeatherApi(cityName);
+    if (weatherApiData && weatherApiData.location && weatherApiData.current) {
+      return formatWeatherApiResponse(weatherApiData);
+    }
+  } catch (apiErr) {
+    console.warn(`[weather.service] WeatherAPI error, falling back to Open-Meteo:`, apiErr.message);
+  }
 
-  // Step 2: Fetch 7-day forecast using those coordinates
+  // Step 2: Fall back to Open-Meteo (Geocoding + Forecast)
+  const location = await weatherRepository.geocodeCity(cityName);
   const raw = await weatherRepository.fetchForecast(location.lat, location.lng, location.timezone);
 
-  // Step 3: Format the current weather reading
   const cur = raw.current;
   const currentWeather = {
     temperature:       Math.round(cur.temperature_2m),
@@ -110,23 +216,19 @@ const getWeatherForCity = async (cityName) => {
     humidity:          cur.relative_humidity_2m,
     windSpeed:         Math.round(cur.wind_speed_10m),
     precipitation:     cur.precipitation,
-    // uv_index is not a 'current' variable in Open-Meteo — use today's daily max instead
     uvIndex:           raw.daily?.uv_index_max?.[0] ?? null,
     weather:           decodeWeatherCode(cur.weather_code),
   };
 
-  // Step 4: Format 7-day forecast
   const forecast = formatDailyForecast(raw.daily);
-
-  // Step 5: Generate travel advice tips
   const advice = getTravelAdvice(currentWeather.temperature, cur.weather_code, currentWeather.humidity);
 
   return {
     location: {
       name:        location.name,
-      state:       location.state,       // e.g., "Goa", "California", "Île-de-France"
+      state:       location.state,
       country:     location.country,
-      countryCode: location.countryCode, // e.g., "IN", "US", "FR"
+      countryCode: location.countryCode,
       lat:         location.lat,
       lng:         location.lng,
       timezone:    location.timezone,
