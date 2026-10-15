@@ -11,6 +11,19 @@
 
 const prisma = require('../config/database');
 
+// ── Fetch polyfill for Node.js < 18 ──────────────────────────────────────────
+// Node 18+ has fetch built-in. For older versions (some Render environments),
+// we fall back to the node-fetch package.
+if (!globalThis.fetch) {
+  try {
+    // eslint-disable-next-line global-require
+    const nodeFetch = require('node-fetch');
+    globalThis.fetch = nodeFetch.default || nodeFetch;
+  } catch {
+    console.warn('[weather.repository] node-fetch not available; relying on built-in fetch.');
+  }
+}
+
 // ── Open-Meteo API base URLs ──────────────────────────────────────────────────
 const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const FORECAST_URL  = 'https://api.open-meteo.com/v1/forecast';
@@ -101,7 +114,20 @@ const geocodeCity = async (cityName) => {
   // ── Step 2: Fall back to Open-Meteo Geocoding API ────────────────────────
   // Fetch top 10 candidates and score them to pick the best match
   const url = `${GEOCODING_URL}?name=${encodeURIComponent(cityName)}&count=10&language=en&format=json`;
-  const res  = await fetch(url);
+
+  // 10-second timeout — prevents hanging on Render free tier cold starts
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  let res;
+  try {
+    res = await fetch(url, { signal: controller.signal });
+  } catch (fetchErr) {
+    clearTimeout(timer);
+    const err = new Error('Geocoding API timed out. Please try again.');
+    err.statusCode = 504;
+    throw err;
+  }
+  clearTimeout(timer);
 
   if (!res.ok) {
     const err = new Error('Geocoding API request failed.');
@@ -150,7 +176,19 @@ const fetchForecast = async (lat, lng, timezone = 'auto') => {
     temperature_unit: 'celsius',
   });
 
-  const res = await fetch(`${FORECAST_URL}?${params.toString()}`);
+  // 10-second timeout — prevents hanging on Render free tier
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  let res;
+  try {
+    res = await fetch(`${FORECAST_URL}?${params.toString()}`, { signal: controller.signal });
+  } catch (fetchErr) {
+    clearTimeout(timer);
+    const err = new Error('Weather API timed out. Please try again.');
+    err.statusCode = 504;
+    throw err;
+  }
+  clearTimeout(timer);
 
   if (!res.ok) {
     const err = new Error('Weather forecast API request failed.');

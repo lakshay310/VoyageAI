@@ -493,5 +493,5 @@ const getHotelById = async (id) => {
   return { ...hotel, ...pricing };
 };
 
-module.exports = { searchHotels, getPopularHotels, bookHotel, getHotelById, ensureSeedData };
+module.exports = { searchHotels, getPopularHotels, bookHotel, getHotelById };
 
