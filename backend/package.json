@@ -12,8 +12,8 @@
     "health": "node scripts/health-check.js",
     "test": "jest --forceExit",
     "seed": "node prisma/seed.js",
-    "migrate": "npx prisma migrate deploy",
-    "deploy:setup": "npx prisma generate && npx prisma migrate deploy && node prisma/seed.js"
+    "migrate": "node scripts/unlock.js && npx prisma migrate deploy",
+    "deploy:setup": "node scripts/unlock.js && npx prisma generate && npx prisma migrate deploy && node prisma/seed.js"
   },
   "keywords": [],
   "author": "",
