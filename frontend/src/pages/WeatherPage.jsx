@@ -107,7 +107,7 @@ const WeatherPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-white">🌦️ Weather Dashboard</h1>
           <p className="text-gray-400 text-xs mt-0.5">
-            Real-time weather for any destination worldwide · Powered by WeatherAPI & Open-Meteo
+            Real-time weather for any destination worldwide
           </p>
         </div>
 

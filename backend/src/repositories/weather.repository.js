@@ -258,14 +258,18 @@ const fetchFromWeatherApi = async (query) => {
   const apiKey = (process.env.WEATHER_API_KEY || process.env.WEATHERAPI_KEY || '').trim();
   if (!apiKey) return null;
 
-  const cacheKey = `weatherapi:${query.trim().toLowerCase()}`;
+  const key = query.trim().toLowerCase();
+  const known = KNOWN_CITIES[key];
+  const queryParam = known ? `${known.lat},${known.lng}` : query;
+
+  const cacheKey = `weatherapi:${key}`;
   const cached = getCached(cacheKey);
   if (cached) {
     console.log(`[weather.repository] Cache HIT for WeatherAPI: ${query}`);
     return cached;
   }
 
-  const url = `${WEATHER_API_URL}?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(query)}&days=7&aqi=no&alerts=no`;
+  const url = `${WEATHER_API_URL}?key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(queryParam)}&days=7&aqi=no&alerts=no`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 10000);
 
@@ -279,6 +283,12 @@ const fetchFromWeatherApi = async (query) => {
       return null;
     }
     const data = await res.json();
+    if (known && data.location) {
+      data.location.name = known.name;
+      data.location.region = known.state;
+      data.location.country = known.country;
+      data.location.countryCode = known.countryCode;
+    }
     setCache(cacheKey, data);
     console.log(`[weather.repository] WeatherAPI success for ${query}`);
     return data;
